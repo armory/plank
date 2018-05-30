@@ -1,4 +1,7 @@
+![](http://i.cdn.turner.com/v5cache/CARTOON/site/Images/i22/edd_plank_174x52.png)
+
 # plank
+
 Spinnaker SDK for Go.
 
 *Plank is a work in progress and will change drastically over the next few months.*
