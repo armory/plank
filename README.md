@@ -1,4 +1,4 @@
-![](https://cl.ly/1j3E1B152s0P/plank_logo-2.png)
+![](https://cl.ly/1m341B1l0l2P/plank_logo-final.png)
 
 # plank
 
