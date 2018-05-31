@@ -1,4 +1,4 @@
-![](http://i.cdn.turner.com/v5cache/CARTOON/site/Images/i22/edd_plank_174x52.png)
+![](https://cl.ly/1j3E1B152s0P/plank_logo-2.png)
 
 # plank
 
