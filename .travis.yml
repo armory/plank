@@ -11,3 +11,4 @@ script:
   # it probably has something to do with Armory vs armory
   # - $GOPATH/bin/goveralls -service=travis-ci
   - go test -v ./...
+
