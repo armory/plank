@@ -20,10 +20,11 @@ func TestAdmin(t *testing.T) {
 		fmt.Fprintln(w, mockBody)
 	}))
 	defer ts.Close()
-	var err error
-	defaultFiatClient, err = client.New(client.BaseURL(ts.URL))
+
+	c, err := client.New(client.BaseURL(ts.URL))
+	s := NewService(Client(c))
 	assert.Nil(t, err)
-	output, _ := Admin("somebody")
+	output, _ := s.Admin("somebody")
 	assert.True(t, output)
 }
 
@@ -43,10 +44,10 @@ func TestWrite(t *testing.T) {
 		fmt.Fprintln(w, mockBody)
 	}))
 	defer ts.Close()
-	var err error
-	defaultFiatClient, err = client.New(client.BaseURL(ts.URL))
+	c, err := client.New(client.BaseURL(ts.URL))
 	assert.Nil(t, err)
-	output, err := WriteAccess("somebody", "myapp")
+	s := NewService(Client(c))
+	output, err := s.WriteAccess("somebody", "myapp")
 	assert.Nil(t, err)
 	assert.True(t, output)
 }

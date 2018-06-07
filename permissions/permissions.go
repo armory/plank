@@ -1,9 +1,12 @@
-// Package permissions helps determine permissions for users.
 package permissions
 
+import (
+	"strings"
+)
+
 // Admin returns whether or not a user is an admin.
-func Admin(username string) (bool, error) {
-	u, err := getUser(username)
+func (s *Service) Admin(username string) (bool, error) {
+	u, err := getUser(s.client, username)
 	if err != nil {
 		return false, err
 	}
@@ -11,22 +14,22 @@ func Admin(username string) (bool, error) {
 }
 
 // WriteAccess returns whether or not a user can write pipelines/configs/etc. for an app.
-func WriteAccess(user, app string) (bool, error) {
-	u, err := getUser(user)
+func (s *Service) WriteAccess(user, app string) (bool, error) {
+	u, err := getUser(s.client, user)
 	if err != nil {
 		return false, err
 	}
 	for _, a := range u.Applications {
-		if a.Name == app && contains(a.Authorizations, fiatWritePerm) {
+		if a.Name == app && containsLowerCase(a.Authorizations, "WRITE") {
 			return true, nil
 		}
 	}
 	return false, nil
 }
 
-func contains(a []string, s string) bool {
+func containsLowerCase(a []string, s string) bool {
 	for _, v := range a {
-		if v == s {
+		if strings.ToLower(v) == strings.ToLower(s) {
 			return true
 		}
 	}

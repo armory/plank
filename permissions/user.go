@@ -1,5 +1,6 @@
 package permissions
 
+// User is returned by Fiat's /authorize endpoint.
 type User struct {
 	Name         string          `json:"name"`
 	Admin        bool            `json:"admin"`
@@ -7,16 +8,17 @@ type User struct {
 	Applications []Authorization `json:"applications"`
 }
 
+// Authorization describes permissinos for an account or application.
 type Authorization struct {
 	Name string `json:"name"`
 	// Authorizations can be 'READ' 'WRITE'
 	Authorizations []string `json:"authorizations"`
 }
 
-func getUser(name string) (User, error) {
+func getUser(g getter, name string) (User, error) {
 	path := "/authorize/" + name
 	var u User
-	err := defaultFiatClient.Get(path, &u)
+	err := g.Get(path, &u)
 	if err != nil {
 		return u, err
 	}
