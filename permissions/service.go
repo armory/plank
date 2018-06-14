@@ -2,7 +2,6 @@
 package permissions
 
 import (
-	"errors"
 	"github.com/armory/plank/client"
 	"github.com/armory/plank/config"
 )
@@ -48,10 +47,7 @@ func Client(c *client.Client) Option {
 // Settings based configuration option for a new permissions service.
 func Settings(conf *config.Settings) Option {
 	return func(s *Service) error {
-		fiat, ok := conf.Services["fiat"]
-		if !ok {
-			return errors.New("missing fiat information in config settings")
-		}
+		fiat := conf.Services.Fiat
 		c, err := client.New(client.BaseURL(fiat.BaseURL))
 		if err != nil {
 			return err
