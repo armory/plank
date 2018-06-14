@@ -6,9 +6,10 @@ import (
 )
 
 // Load settings from yaml file.
-func Load() (Settings, error) {
+func Load(otherSettings ...string) (Settings, error) {
 	var s Settings
-	m, err := spring.LoadDefault([]string{"spinnaker"})
+	settingFiles := append([]string{"spinnaker"}, otherSettings...)
+	m, err := spring.LoadDefault(settingFiles)
 	if err != nil {
 		return s, err
 	}
