@@ -8,7 +8,7 @@
     "pkg/spring",
     "pkg/yaml"
   ]
-  revision = "9e8d42c97b92694f14578baf101b6d60a3a6e77b"
+  revision = "2bcf8630d86cf99265a7d16a408def7ecb80774b"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -52,14 +52,14 @@
 [[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
-  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
-  version = "v1.2.1"
+  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  version = "v1.2.2"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "fd5f17ee729917fcb39f16421460212d917a0813"
+  revision = "a8fb68e7206f8c78be19b432c58eb52a6aa34462"
 
 [[projects]]
   branch = "master"
