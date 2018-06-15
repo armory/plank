@@ -45,9 +45,8 @@ func Client(c *client.Client) Option {
 }
 
 // Settings based configuration option for a new permissions service.
-func Settings(conf *config.Settings) Option {
+func Settings(fiat *config.Service) Option {
 	return func(s *Service) error {
-		fiat := conf.Services.Fiat
 		c, err := client.New(client.BaseURL(fiat.BaseURL))
 		if err != nil {
 			return err
