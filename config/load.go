@@ -6,15 +6,14 @@ import (
 )
 
 // Load settings from yaml file.
-func Load() (Settings, error) {
-	var s Settings
-	m, err := spring.LoadDefault([]string{"spinnaker"})
+func Load(dest interface{}, services ...string) error {
+	m, err := spring.LoadDefault(services)
 	if err != nil {
-		return s, err
+		return err
 	}
-	err = mapstructure.Decode(m, &s)
+	err = mapstructure.Decode(m, &dest)
 	if err != nil {
-		return s, err
+		return err
 	}
-	return s, nil
+	return nil
 }
