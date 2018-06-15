@@ -15,6 +15,7 @@ type Services struct {
 type Front50 struct {
 	Service
 	StorageBucket string `json:"storage_bucket" mapstructure:"storage_bucket"`
+	StoragePrefix string `json:"rootFolder" mapstructure:"rootFolder"`
 	S3            struct {
 		Enabled bool `json:"enabled" mapstructure:"enabled"`
 	} `json:"s3" mapstructure:"s3"`
