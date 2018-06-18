@@ -34,3 +34,9 @@ func TestBaseURL(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, expected, c.baseURL)
 }
+
+func TestBaseURLError(t *testing.T) {
+	input := ""
+	_, err := New(BaseURL(input))
+	assert.NotNil(t, err)
+}
