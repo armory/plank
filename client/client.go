@@ -43,6 +43,9 @@ func New(options ...Option) (*Client, error) {
 // BaseURL for the client to use.
 func BaseURL(address string) Option {
 	return func(c *Client) error {
+		if len(address) == 0 {
+			return errors.New("baseUrl can not be empty")
+		}
 		c.baseURL = address
 		if c.baseURL[len(c.baseURL)-1] == '/' {
 			c.baseURL = c.baseURL[:len(c.baseURL)-1]
