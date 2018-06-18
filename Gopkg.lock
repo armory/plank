@@ -4,11 +4,8 @@
 [[projects]]
   branch = "master"
   name = "github.com/armory/go-yaml-tools"
-  packages = [
-    "pkg/spring",
-    "pkg/yaml"
-  ]
-  revision = "9e8d42c97b92694f14578baf101b6d60a3a6e77b"
+  packages = ["pkg/spring","pkg/yaml"]
+  revision = "cbd4edb1128e9fd6e7596e0cae1ff33d14ad1452"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -42,44 +39,31 @@
 
 [[projects]]
   name = "github.com/spf13/afero"
-  packages = [
-    ".",
-    "mem"
-  ]
+  packages = [".","mem"]
   revision = "787d034dfe70e44075ccc060d346146ef53270ad"
   version = "v1.1.1"
 
 [[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
-  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
-  version = "v1.2.1"
+  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  version = "v1.2.2"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "fd5f17ee729917fcb39f16421460212d917a0813"
+  revision = "027cca12c2d63e3d62b670d901e8a2c95854feec"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = [
-    "unix",
-    "windows"
-  ]
-  revision = "8883426083c04a2627e6e59d84d5f6fb63d16c91"
+  packages = ["unix","windows"]
+  revision = "6c888cc515d3ed83fc103cf1d84468aad274b0a7"
 
 [[projects]]
   name = "golang.org/x/text"
-  packages = [
-    "internal/gen",
-    "internal/triegen",
-    "internal/ucd",
-    "transform",
-    "unicode/cldr",
-    "unicode/norm"
-  ]
+  packages = ["internal/gen","internal/triegen","internal/ucd","transform","unicode/cldr","unicode/norm"]
   revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
   version = "v0.3.0"
 
