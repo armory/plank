@@ -11,7 +11,7 @@ func Load(dest interface{}, services ...string) error {
 	if err != nil {
 		return err
 	}
-	err = mapstructure.Decode(m, &dest)
+	err = mapstructure.WeakDecode(m, &dest)
 	if err != nil {
 		return err
 	}
