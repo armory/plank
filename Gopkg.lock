@@ -8,7 +8,7 @@
     "pkg/spring",
     "pkg/yaml"
   ]
-  revision = "a2f97c35a4c7a7d8bbdcb941daad43e58fdb0a00"
+  revision = "5d0947924d8e895829ce286f40593dbba7f848df"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -68,7 +68,7 @@
     "unix",
     "windows"
   ]
-  revision = "fc8bd948cf46f9c7af0f07d34151ce25fe90e477"
+  revision = "ad87a3a340fa7f3bed189293fbfa7a9b7e021ae1"
 
 [[projects]]
   name = "golang.org/x/text"
