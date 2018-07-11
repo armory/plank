@@ -1,7 +1,7 @@
 package config
 
-// Settings mirrors Spinnaker's yaml files.
-type Settings struct {
+// Spinnaker mirrors spinnaker.yaml files on disk
+type Spinnaker struct {
 	Services Services `json:"services" mapstructure:"services"`
 }
 
@@ -9,6 +9,18 @@ type Settings struct {
 type Services struct {
 	Fiat    Service `json:"fiat" mapstructure:"fiat"`
 	Front50 Front50 `json:"front50" mapstructure:"front50"`
+	Jenkins Jenkins `json:"jenkins" mapstructure:"jenkins"`
+}
+
+// Jenkins service settings
+type Jenkins struct {
+	Enabled       bool `json:"enabled" mapstructure:"enabled"`
+	DefaultMaster struct {
+		Name     string `json:"name"`
+		BaseURL  string `json:"baseUrl"`
+		Username string `json:"username"`
+		Password string `json:"password"`
+	} `json:"defaultMaster" mapstructure:"defaultMaster"`
 }
 
 // Front50 service settings.
