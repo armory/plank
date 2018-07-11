@@ -16,10 +16,10 @@ type Services struct {
 type Jenkins struct {
 	Enabled       bool `json:"enabled" mapstructure:"enabled"`
 	DefaultMaster struct {
-		Name     string `json:"name"`
-		BaseURL  string `json:"baseUrl"`
-		Username string `json:"username"`
-		Password string `json:"password"`
+		Name     string `json:"name" mapstructure:"name"`
+		BaseURL  string `json:"baseUrl" mapstructure:"baseUrl"`
+		Username string `json:"username" mapstructure:"username"`
+		Password string `json:"password" mapstructure:"password"`
 	} `json:"defaultMaster" mapstructure:"defaultMaster"`
 }
 
