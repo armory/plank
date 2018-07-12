@@ -10,6 +10,9 @@ type Services struct {
 	Fiat    Service `json:"fiat" mapstructure:"fiat"`
 	Front50 Front50 `json:"front50" mapstructure:"front50"`
 	Jenkins Jenkins `json:"jenkins" mapstructure:"jenkins"`
+	Deck    struct {
+		Hostname string `json:"hostname" mapstructure:"hostname"`
+	} `json:"deck" mapstructure:"deck"`
 }
 
 // Jenkins service settings

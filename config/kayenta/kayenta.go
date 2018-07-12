@@ -5,13 +5,13 @@ type Kayenta struct {
 	Kayenta struct {
 		Datadog struct {
 			Enabled  bool             `json:"enabled" mapstructure:"enabled"`
-			Accounts []DataDogAccount `json:"accounts" mapstructure:"accounts"`
+			Accounts []DatadogAccount `json:"accounts" mapstructure:"accounts"`
 		} `json:"datadog" mapstructure:"datadog"`
 	} `json:"kayenta" mapstructure:"kayenta"`
 }
 
-// DataDogAccount settings
-type DataDogAccount struct {
+// DatadogAccount settings
+type DatadogAccount struct {
 	Name            string   `json:"name" mapstructure:"name"`
 	APIKey          string   `json:"apiKey" mapstructure:"apiKey"`
 	ApplicationKey  string   `json:"applicationKey" mapstructure:"applicationKey"`
