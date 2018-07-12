@@ -44,7 +44,7 @@ type DockerAccount struct {
 type KubernetesAccount struct {
 	Name             string           `json:"name" mapstructure:"name"`
 	Namespaces       []string         `json:"namespaces" mapstructure:"namespaces"`
-	KubeonfigFile    string           `json:"kubeconfigFile" mapstructure:"kubeconfigFile"`
+	KubeconfigFile   string           `json:"kubeconfigFile" mapstructure:"kubeconfigFile"`
 	ProviderVersion  string           `json:"providerVersion" mapstructure:"providerVersion"`
 	DockerRegistries []DockerRegistry `json:"dockerRegistries" mapstructure:"dockerRegistries"`
 }
