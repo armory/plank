@@ -1,4 +1,4 @@
-package config
+package spinnaker
 
 // Spinnaker mirrors spinnaker.yaml files on disk
 type Spinnaker struct {
