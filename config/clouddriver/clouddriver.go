@@ -13,7 +13,10 @@ type Clouddriver struct {
 	} `json:"kubernetes" mapstructure:"kubernetes"`
 
 	AWS struct {
-		Accounts []AWSAccount `json:"accounts" mapstructure:"accounts"`
+		Enabled           bool         `json:"enabled" mapstructure:"enabled"`
+		DefaultAssumeRole string       `json:"defaultAssumeRole" mapstructure:"defaultAssumeRole"`
+		DefaultRegions    []AWSRegion  `json:"defaultRegions" mapstructure:"defaultRegions"`
+		Accounts          []AWSAccount `json:"accounts" mapstructure:"accounts"`
 	} `json:"aws" mapstructure:"aws"`
 
 	GCP struct {
