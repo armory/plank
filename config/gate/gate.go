@@ -1,4 +1,4 @@
-package config
+package gate
 
 type Gate struct {
 	Saml Saml `json:"saml" mapstructure:"saml"`
