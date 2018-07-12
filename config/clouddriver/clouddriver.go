@@ -16,12 +16,17 @@ type Clouddriver struct {
 		Accounts []AWSAccount `json:"accounts" mapstructure:"accounts"`
 	} `json:"aws" mapstructure:"aws"`
 
+	GCP struct {
+		Enabled  bool         `json:"enabled" mapstructure:"enabled"`
+		Accounts []GCPAccount `json:"accounts" mapstructure:"accounts"`
+	} `json:"google" mapstructure:"google"`
+
 	Artifacts struct {
 		Github struct {
 			Enabled  bool                    `json:"enabled" mapstructure:"enabled"`
 			Accounts []GithubArtifactAccount `json:"accounts" mapstructure:"accounts"`
-		} `json:"artifacts" mapstructure:"artifacts"`
-	}
+		} `json:"github" mapstructure:"github"`
+	} `json:"artifacts" mapstructure:"artifacts"`
 }
 
 // GithubArtifactAccount settings
@@ -64,4 +69,11 @@ type AWSAccount struct {
 // AWSRegion settings
 type AWSRegion struct {
 	Name string `json:"name" mapstructure:"name"`
+}
+
+// GCPAccount settings
+type GCPAccount struct {
+	Name     string `json:"name" mapstructure:"name"`
+	Project  string `json:"project" mapstructure:"project"`
+	JSONPath string `json:"jsonPath" mapstructure:"jsonPath"`
 }
