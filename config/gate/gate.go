@@ -1,15 +1,20 @@
 package gate
 
 type Gate struct {
-	Saml   Saml   `json:"saml" mapstructure:"saml"`
-	Okta   Okta   `json:"okta" mapstructure:"okta"`
-	LDAP   LDAP   `json:"ldap" mapstructure:"ldap"`
-	Github Github `json:"github" mapstructure:"github"`
+	Saml Saml `json:"saml" mapstructure:"saml"`
+	Okta Okta `json:"okta" mapstructure:"okta"`
+	LDAP LDAP `json:"ldap" mapstructure:"ldap"`
+	// https://docs.armory.io/install-guide/auth/#github
+	// suggests github URIs used within standard OAuth implementation
+	// TODO: OAuth structure should likely be used for: Github, Okta, Google, Facebook
+	Security struct {
+		OAuth OAuth `json:"oauth2" mapstructure:"oauth2"`
+	}
 	// TODO: Verify proper placement for OAuth
 	// spinnaker docs put OAuth under spring:
 	// armory production puts them under security:
 	Spring struct {
-		OAuth OAuth `json:"oauth" mapstructure:"oauth"`
+		OAuth OAuth `json:"oauth2" mapstructure:"oauth2"`
 	} `json:"spring" mapstructure:"spring"`
 }
 
