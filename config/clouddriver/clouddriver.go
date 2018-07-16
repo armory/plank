@@ -3,80 +3,80 @@ package clouddriver
 // Clouddriver mirrors clouddriver.yaml files on disk
 type Clouddriver struct {
 	DockerRegistry struct {
-		Enabled  bool            `json:"enabled" mapstructure:"enabled"`
-		Accounts []DockerAccount `json:"accounts" mapstructure:"accounts"`
-	} `json:"dockerRegistry" mapstructure:"dockerRegistry"`
+		Enabled  bool            `json:"enabled,omitempty" mapstructure:"enabled"`
+		Accounts []DockerAccount `json:"accounts,omitempty" mapstructure:"accounts"`
+	} `json:"dockerRegistry,omitempty,omitempty" mapstructure:"dockerRegistry"`
 
 	Kubernetes struct {
-		Enabled  bool                `json:"enabled" mapstructure:"enabled"`
-		Accounts []KubernetesAccount `json:"accounts" mapstructure:"accounts"`
-	} `json:"kubernetes" mapstructure:"kubernetes"`
+		Enabled  bool                `json:"enabled,omitempty,omitempty" mapstructure:"enabled"`
+		Accounts []KubernetesAccount `json:"accounts,omitempty,omitempty" mapstructure:"accounts"`
+	} `json:"kubernetes,omitempty,omitempty" mapstructure:"kubernetes"`
 
 	AWS struct {
-		Enabled           bool         `json:"enabled" mapstructure:"enabled"`
-		DefaultAssumeRole string       `json:"defaultAssumeRole" mapstructure:"defaultAssumeRole"`
-		DefaultRegions    []AWSRegion  `json:"defaultRegions" mapstructure:"defaultRegions"`
-		Accounts          []AWSAccount `json:"accounts" mapstructure:"accounts"`
-	} `json:"aws" mapstructure:"aws"`
+		Enabled           bool         `json:"enabled,omitempty,omitempty" mapstructure:"enabled"`
+		DefaultAssumeRole string       `json:"defaultAssumeRole,omitempty,omitempty" mapstructure:"defaultAssumeRole"`
+		DefaultRegions    []AWSRegion  `json:"defaultRegions,omitempty,omitempty" mapstructure:"defaultRegions"`
+		Accounts          []AWSAccount `json:"accounts,omitempty" mapstructure:"accounts"`
+	} `json:"aws,omitempty" mapstructure:"aws"`
 
 	GCP struct {
-		Enabled  bool         `json:"enabled" mapstructure:"enabled"`
-		Accounts []GCPAccount `json:"accounts" mapstructure:"accounts"`
-	} `json:"google" mapstructure:"google"`
+		Enabled  bool         `json:"enabled,omitempty" mapstructure:"enabled"`
+		Accounts []GCPAccount `json:"accounts,omitempty" mapstructure:"accounts"`
+	} `json:"google,omitempty" mapstructure:"google"`
 
 	Artifacts struct {
 		Github struct {
-			Enabled  bool                    `json:"enabled" mapstructure:"enabled"`
-			Accounts []GithubArtifactAccount `json:"accounts" mapstructure:"accounts"`
-		} `json:"github" mapstructure:"github"`
-	} `json:"artifacts" mapstructure:"artifacts"`
+			Enabled  bool                    `json:"enabled,omitempty" mapstructure:"enabled"`
+			Accounts []GithubArtifactAccount `json:"accounts,omitempty" mapstructure:"accounts"`
+		} `json:"github,omitempty" mapstructure:"github"`
+	} `json:"artifacts,omitempty" mapstructure:"artifacts"`
 }
 
 // GithubArtifactAccount settings
 type GithubArtifactAccount struct {
-	Name     string `json:"name" mapstructure:"name"`
-	Username string `json:"username" mapstructure:"username"`
-	Token    string `json:"token" mapstructure:"token"`
+	Name     string `json:"name,omitempty" mapstructure:"name"`
+	Username string `json:"username,omitempty" mapstructure:"username"`
+	Token    string `json:"token,omitempty" mapstructure:"token"`
 }
 
 // DockerAccount settings
 type DockerAccount struct {
-	Name         string   `json:"name" mapstructure:"name"`
-	Username     string   `json:"username" mapstructure:"username"`
-	PasswordFile string   `json:"passwordFile" mapstructure:"passwordFile"`
-	Address      string   `json:"address" mapstructure:"address"`
-	Repositories []string `json:"repositories" mapstructure:"repositories"`
+	Name         string   `json:"name,omitempty" mapstructure:"name"`
+	Username     string   `json:"username,omitempty" mapstructure:"username"`
+	PasswordFile string   `json:"passwordFile,omitempty" mapstructure:"passwordFile"`
+	Address      string   `json:"address,omitempty" mapstructure:"address"`
+	Repositories []string `json:"repositories,omitempty" mapstructure:"repositories"`
 }
 
 // KubernetesAccount settings
 type KubernetesAccount struct {
-	Name             string           `json:"name" mapstructure:"name"`
-	Namespaces       []string         `json:"namespaces" mapstructure:"namespaces"`
-	KubeconfigFile   string           `json:"kubeconfigFile" mapstructure:"kubeconfigFile"`
-	ProviderVersion  string           `json:"providerVersion" mapstructure:"providerVersion"`
-	DockerRegistries []DockerRegistry `json:"dockerRegistries" mapstructure:"dockerRegistries"`
+	Name             string           `json:"name,omitempty" mapstructure:"name"`
+	Namespaces       []string         `json:"namespaces,omitempty" mapstructure:"namespaces"`
+	KubeconfigFile   string           `json:"kubeconfigFile,omitempty" mapstructure:"kubeconfigFile"`
+	ProviderVersion  string           `json:"providerVersion,omitempty" mapstructure:"providerVersion"`
+	DockerRegistries []DockerRegistry `json:"dockerRegistries,omitempty" mapstructure:"dockerRegistries"`
 }
 
 // DockerRegistry settings
 type DockerRegistry struct {
-	AccountName string `json:"accountName" mapstructure:"accountName"`
+	AccountName string `json:"accountName,omitempty" mapstructure:"accountName"`
 }
 
 // AWSAccount settings
 type AWSAccount struct {
-	Name      string      `json:"name" mapstructure:"name"`
-	AccountID string      `json:"accountId" mapstructure:"accountId"`
-	Regions   []AWSRegion `json:"regions" mapstructure:"regions"`
+	Name      string      `json:"name,omitempty" mapstructure:"name"`
+	AccountID string      `json:"accountId,omitempty" mapstructure:"accountId"`
+	Regions   []AWSRegion `json:"regions,omitempty" mapstructure:"regions"`
 }
 
 // AWSRegion settings
 type AWSRegion struct {
-	Name string `json:"name" mapstructure:"name"`
+	Name string `json:"name,omitempty" mapstructure:"name"`
 }
 
 // GCPAccount settings
 type GCPAccount struct {
-	Name     string `json:"name" mapstructure:"name"`
-	Project  string `json:"project" mapstructure:"project"`
-	JSONPath string `json:"jsonPath" mapstructure:"jsonPath"`
+	Name     string `json:"name,omitempty" mapstructure:"name"`
+	Project  string `json:"project,omitempty" mapstructure:"project"`
+	JSONPath string `json:"jsonPath,omitempty" mapstructure:"jsonPath"`
 }

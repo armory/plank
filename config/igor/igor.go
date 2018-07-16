@@ -3,27 +3,27 @@ package igor
 // Igor mirrors igor.yml on disk
 type Igor struct {
 	Jenkins struct {
-		Enabled bool           `json:"enabled" mapstructure:"enabled"`
-		Masters JenkinsMasters `json:"masters" mapstructure:"masters"`
-	} `json:"jenkins" mapstructure:"jenkins"`
+		Enabled bool           `json:"enabled,omitempty" mapstructure:"enabled"`
+		Masters JenkinsMasters `json:"masters,omitempty" mapstructure:"masters"`
+	} `json:"jenkins,omitempty" mapstructure:"jenkins"`
 	Travis struct {
-		Enabled bool          `json:"enabled" mapstructure:"enabled"`
-		Masters TravisMasters `json:"masters" mapstructure:"masters"`
+		Enabled bool          `json:"enabled,omitempty" mapstructure:"enabled"`
+		Masters TravisMasters `json:"masters,omitempty" mapstructure:"masters"`
 	}
 }
 
 // JenkinsMasters is Jenkins' masters settings
 type JenkinsMasters struct {
-	Name     string `json:"name" mapstructure:"name"`
-	Address  string `json:"address" mapstructure:"address"`
-	Username string `json:"username" mapstructure:"username"`
-	Password string `json:"password" mapstructure:"password"`
+	Name     string `json:"name,omitempty" mapstructure:"name"`
+	Address  string `json:"address,omitempty" mapstructure:"address"`
+	Username string `json:"username,omitempty" mapstructure:"username"`
+	Password string `json:"password,omitempty" mapstructure:"password"`
 }
 
 // TravisMasters is Travis' masters settings
 type TravisMasters struct {
-	Name        string `json:"name" mapstructure:"name"`
-	BaseURL     string `json:"baseUrl" mapstructure:"baseUrl"`
-	Address     string `json:"address" mapstructure:"address"`
-	GithubToken string `json:"githubToken" mapstructure:"githubToken"`
+	Name        string `json:"name,omitempty" mapstructure:"name"`
+	BaseURL     string `json:"baseUrl,omitempty" mapstructure:"baseUrl"`
+	Address     string `json:"address,omitempty" mapstructure:"address"`
+	GithubToken string `json:"githubToken,omitempty" mapstructure:"githubToken"`
 }

@@ -3,13 +3,13 @@ package echo
 // Echo mirrors the echo.yml file on disk
 type Echo struct {
 	Diagnostics struct {
-		Enabled bool   `json:"enabled" mapstructure:"enabled"`
-		ID      string `json:"id" mapstructure:"id"`
-	} `json:"diagnostics" mapstructure:"diagnostics"`
+		Enabled bool   `json:"enabled,omitempty" mapstructure:"enabled"`
+		ID      string `json:"id,omitempty" mapstructure:"id"`
+	} `json:"diagnostics,omitempty" mapstructure:"diagnostics"`
 
 	Slack struct {
-		Enabled bool   `json:"enabled" mapstructure:"enabled"`
-		Token   string `json:"token" mapstructure:"token"`
-		BotName string `json:"botName" mapstructure:"botName"`
-	} `json:"slack" mapstructure:"slack"`
+		Enabled bool   `json:"enabled,omitempty" mapstructure:"enabled"`
+		Token   string `json:"token,omitempty" mapstructure:"token"`
+		BotName string `json:"botName,omitempty" mapstructure:"botName"`
+	} `json:"slack,omitempty" mapstructure:"slack"`
 }
