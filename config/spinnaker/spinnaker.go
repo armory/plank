@@ -7,11 +7,14 @@ type Spinnaker struct {
 
 // Services within Spinnaker.
 type Services struct {
-	Fiat    Service `json:"fiat" mapstructure:"fiat"`
-	Front50 Front50 `json:"front50" mapstructure:"front50"`
-	Jenkins Jenkins `json:"jenkins" mapstructure:"jenkins"`
-	Redis   Redis   `json:"redis" mapstructure:"redis"`
-	Deck    struct {
+	Fiat     Service `json:"fiat" mapstructure:"fiat"`
+	Front50  Front50 `json:"front50" mapstructure:"front50"`
+	Jenkins  Jenkins `json:"jenkins" mapstructure:"jenkins"`
+	Redis    Redis   `json:"redis" mapstructure:"redis"`
+	Features struct {
+		Jira Jira `json:"jira" mapstructure:"jira"`
+	} `json:"features" mapstructure:"features"`
+	Deck struct {
 		Hostname string `json:"hostname" mapstructure:"hostname"`
 	} `json:"deck" mapstructure:"deck"`
 }
@@ -19,6 +22,12 @@ type Services struct {
 type Redis struct {
 	Host string `json:"host" mapstructure:"host"`
 	Port string `json:"port" mapstructure:"port"`
+}
+
+type Jira struct {
+	Enabled        bool   `json:"enabled" mapstructure:"enabled"`
+	BasicAuthToken string `json:"basicAuthToken" mapstructure:"basicAuthToken"`
+	CreateIssueURL string `json:"createIssueUrl" mapstructure:"createIssueUrl"`
 }
 
 // Jenkins service settings
