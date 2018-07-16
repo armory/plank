@@ -10,9 +10,15 @@ type Services struct {
 	Fiat    Service `json:"fiat" mapstructure:"fiat"`
 	Front50 Front50 `json:"front50" mapstructure:"front50"`
 	Jenkins Jenkins `json:"jenkins" mapstructure:"jenkins"`
+	Redis   Redis   `json:"redis" mapstructure:"redis"`
 	Deck    struct {
 		Hostname string `json:"hostname" mapstructure:"hostname"`
 	} `json:"deck" mapstructure:"deck"`
+}
+
+type Redis struct {
+	Host string `json:"host" mapstructure:"host"`
+	Port string `json:"port" mapstructure:"port"`
 }
 
 // Jenkins service settings
@@ -37,6 +43,9 @@ type Front50 struct {
 	GCS struct {
 		Enabled bool `json:"enabled" mapstructure:"enabled"`
 	} `json:"gcs" mapstructure:"gcs"`
+	Redis struct {
+		Enabled bool `json:"enabled" mapstructure:"enabled"`
+	} `json:"redis" mapstructure:"redis"`
 }
 
 // Service such as Fiat, Orca, Deck, Gate, etc.
