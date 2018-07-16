@@ -1,61 +1,61 @@
 package gate
 
 type Gate struct {
-	SAML SAML `json:"saml" mapstructure:"saml"`
-	LDAP LDAP `json:"ldap" mapstructure:"ldap"`
+	SAML SAML `json:"saml,omitempty" mapstructure:"saml"`
+	LDAP LDAP `json:"ldap,omitempty" mapstructure:"ldap"`
 	// https://docs.armory.io/install-guide/auth/#github
 	// suggests github URIs used within standard OAuth implementation
 	// TODO: OAuth structure should likely be used for: Github, Okta, Google, Facebook
 	Security struct {
-		OAuth2 OAuth2 `json:"oauth2" mapstructure:"oauth2"`
-	} `json:"security" mapstructure:"security"`
+		OAuth2 OAuth2 `json:"oauth2,omitempty" mapstructure:"oauth2"`
+	} `json:"security,omitempty" mapstructure:"security"`
 	// TODO: Verify proper placement for OAuth
 	// spinnaker docs put OAuth under spring:
 	// armory production puts them under security:
 	Spring struct {
-		OAuth2 OAuth2 `json:"oauth2" mapstructure:"oauth2"`
-	} `json:"spring" mapstructure:"spring"`
+		OAuth2 OAuth2 `json:"oauth2,omitempty" mapstructure:"oauth2"`
+	} `json:"spring,omitempty" mapstructure:"spring"`
 }
 
 type SAML struct {
-	Enabled  bool   `json:"enabled" mapstructure:"enabled"`
-	IssuerID string `json:"issuerId" mapstructure:"issuerId"`
-	Metadata string `json:"metadata" mapstructure:"metadata"`
-	PEM      string `json:"pem" mapstructure:"pem"`
+	Enabled  bool   `json:"enabled,omitempty" mapstructure:"enabled"`
+	IssuerID string `json:"issuerId,omitempty" mapstructure:"issuerId"`
+	Metadata string `json:"metadata,omitempty" mapstructure:"metadata"`
+	PEM      string `json:"pem,omitempty" mapstructure:"pem"`
 }
 
 // LDAP setup https://docs.armory.io/install-guide/auth/#ldap-authentication
 type LDAP struct {
-	Enabled       bool   `json:"enabled" mapstructure:"enabled"`
-	URL           string `json:"url" mapstructure:"url"`
-	UserDNPattern string `json:"userDnPattern" mapstructure:"userDnPattern"`
+	Enabled       bool   `json:"enabled,omitempty" mapstructure:"enabled"`
+	URL           string `json:"url,omitempty" mapstructure:"url"`
+	UserDNPattern string `json:"userDnPattern,omitempty" mapstructure:"userDnPattern"`
 }
 
 // OAuth setup https://www.spinnaker.io/setup/security/authentication/oauth/
 type OAuth2 struct {
-	Client          OAuthClient    `json:"client" mapstructure:"client"`
-	UserInfoMapping OAuthUIMapping `json:"userInfoMapping" mapstructure:"userInfoMapping"`
+	Client          OAuthClient    `json:"client,omitempty" mapstructure:"client"`
+	UserInfoMapping OAuthUIMapping `json:"userInfoMapping,omitempty" mapstructure:"userInfoMapping"`
 	Resource        struct {
-		UserInfoURI string `json:"userInfoUri" mapstructure:"userInfoUri"`
-	} `json:"resource" mapstructure:"resource"`
+		UserInfoURI string `json:"userInfoUri,omitempty" mapstructure:"userInfoUri"`
+	} `json:"resource,omitempty" mapstructure:"resource"`
 	ProviderRequirements struct {
 		// Type is used to specifiy: github|google, etc
-		Type         string `json:"requirementsType" mapstructure:"requirementsType"`
-		Organization string `json:"requirementsOrg" mapstructure:"requirementsOrg"`
-	} `json:"providerRequirements" mapstructure:"providerRequirements"`
+		Type         string `json:"requirementsType,omitempty" mapstructure:"requirementsType"`
+		Organization string `json:"requirementsOrg,omitempty" mapstructure:"requirementsOrg"`
+	} `json:"providerRequirements,omitempty" mapstructure:"providerRequirements"`
 }
 
 type OAuthClient struct {
-	ClientID             string `json:"clientId" mapstructure:"clientId"`
-	ClientSecret         string `json:"clientSecret" mapstructure:"clientSecret"`
-	UserAuthorizationURI string `json:"userAuthorizationUri" mapstructure:"userAuthorizationUri"`
-	AccessTokenURI       string `json:"accessTokenUri" mapstructure:"accessTokenUri"`
-	Scope                string `json:"scope" mapstructure:"scope"`
+	ClientID             string `json:"clientId,omitempty" mapstructure:"clientId"`
+	ClientSecret         string `json:"clientSecret,omitempty" mapstructure:"clientSecret"`
+	UserAuthorizationURI string `json:"userAuthorizationUri,omitempty" mapstructure:"userAuthorizationUri"`
+	AccessTokenURI       string `json:"accessTokenUri,omitempty" mapstructure:"accessTokenUri"`
+	Scope                string `json:"scope,omitempty" mapstructure:"scope"`
 }
 
 type OAuthUIMapping struct {
-	Email     string `json:"email" mapstructure:"email"`
-	FirstName string `json:"firstName" mapstructure:"firstName"`
-	LastName  string `json:"lastName" mapstructure:"lastName"`
-	Username  string `json:"username" mapstructure:"username"`
+	Email     string `json:"email,omitempty" mapstructure:"email"`
+	FirstName string `json:"firstName,omitempty" mapstructure:"firstName"`
+	LastName  string `json:"lastName,omitempty" mapstructure:"lastName"`
+	Username  string `json:"username,omitempty" mapstructure:"username"`
 }

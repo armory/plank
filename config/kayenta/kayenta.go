@@ -4,17 +4,17 @@ package kayenta
 type Kayenta struct {
 	Kayenta struct {
 		Datadog struct {
-			Enabled  bool             `json:"enabled" mapstructure:"enabled"`
-			Accounts []DatadogAccount `json:"accounts" mapstructure:"accounts"`
-		} `json:"datadog" mapstructure:"datadog"`
-	} `json:"kayenta" mapstructure:"kayenta"`
+			Enabled  bool             `json:"enabled,omitempty" mapstructure:"enabled"`
+			Accounts []DatadogAccount `json:"accounts,omitempty" mapstructure:"accounts"`
+		} `json:"datadog,omitempty" mapstructure:"datadog"`
+	} `json:"kayenta,omitempty" mapstructure:"kayenta"`
 }
 
 // DatadogAccount settings
 type DatadogAccount struct {
-	Name            string   `json:"name" mapstructure:"name"`
-	APIKey          string   `json:"apiKey" mapstructure:"apiKey"`
-	ApplicationKey  string   `json:"applicationKey" mapstructure:"applicationKey"`
-	EndPointBaseURL string   `json:"endpoint.baseUrl" mapstructure:"endpoint.baseUrl"`
-	SupportedTypes  []string `json:"supportedTypes" mapstructure:"supportedTypes"`
+	Name            string   `json:"name,omitempty" mapstructure:"name"`
+	APIKey          string   `json:"apiKey,omitempty" mapstructure:"apiKey"`
+	ApplicationKey  string   `json:"applicationKey,omitempty" mapstructure:"applicationKey"`
+	EndPointBaseURL string   `json:"endpoint,omitempty.baseUrl" mapstructure:"endpoint.baseUrl"`
+	SupportedTypes  []string `json:"supportedTypes,omitempty" mapstructure:"supportedTypes"`
 }
