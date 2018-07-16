@@ -39,7 +39,7 @@ type OAuth2 struct {
 		UserInfoURI string `json:"userInfoUri" mapstructure:"userInfoUri"`
 	} `json:"resource" mapstructure:"resource"`
 	ProviderRequirements struct {
-		// Type is used to specifiy: okta|github|google, etc
+		// Type is used to specifiy: github|google, etc
 		Type         string `json:"requirementsType" mapstructure:"requirementsType"`
 		Organization string `json:"requirementsOrg" mapstructure:"requirementsOrg"`
 	} `json:"providerRequirements" mapstructure:"providerRequirements"`
