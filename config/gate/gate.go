@@ -1,55 +1,45 @@
 package gate
 
 type Gate struct {
-	Saml Saml `json:"saml" mapstructure:"saml"`
-	Okta Okta `json:"okta" mapstructure:"okta"`
+	SAML SAML `json:"saml" mapstructure:"saml"`
 	LDAP LDAP `json:"ldap" mapstructure:"ldap"`
 	// https://docs.armory.io/install-guide/auth/#github
 	// suggests github URIs used within standard OAuth implementation
 	// TODO: OAuth structure should likely be used for: Github, Okta, Google, Facebook
 	Security struct {
-		OAuth OAuth `json:"oauth2" mapstructure:"oauth2"`
-	}
+		OAuth2 OAuth2 `json:"oauth2" mapstructure:"oauth2"`
+	} `json:"security" mapstructure:"security"`
 	// TODO: Verify proper placement for OAuth
 	// spinnaker docs put OAuth under spring:
 	// armory production puts them under security:
 	Spring struct {
-		OAuth OAuth `json:"oauth2" mapstructure:"oauth2"`
+		OAuth2 OAuth2 `json:"oauth2" mapstructure:"oauth2"`
 	} `json:"spring" mapstructure:"spring"`
 }
 
-type Saml struct {
+type SAML struct {
 	Enabled  bool   `json:"enabled" mapstructure:"enabled"`
 	IssuerID string `json:"issuerId" mapstructure:"issuerId"`
 	Metadata string `json:"metadata" mapstructure:"metadata"`
-	Pem      string `json:"pem" mapstructure:"pem"`
-}
-
-type Okta struct {
-	Enabled  bool   `json:"enabled" mapstructure:"enabled"`
-	IssuerID string `json:"issuerId" mapstructure:"issuerId"`
-	Metadata string `json:"metadata" mapstructure:"metadata"`
-	Pem      string `json:"pem" mapstructure:"pem"`
+	PEM      string `json:"pem" mapstructure:"pem"`
 }
 
 // LDAP setup https://docs.armory.io/install-guide/auth/#ldap-authentication
 type LDAP struct {
 	Enabled       bool   `json:"enabled" mapstructure:"enabled"`
 	URL           string `json:"url" mapstructure:"url"`
-	userDNPattern string `json:"userDnPattern" mapstructure:"userDnPattern"`
-}
-
-type Github struct {
+	UserDNPattern string `json:"userDnPattern" mapstructure:"userDnPattern"`
 }
 
 // OAuth setup https://www.spinnaker.io/setup/security/authentication/oauth/
-type OAuth struct {
+type OAuth2 struct {
 	Client          OAuthClient    `json:"client" mapstructure:"client"`
 	UserInfoMapping OAuthUIMapping `json:"userInfoMapping" mapstructure:"userInfoMapping"`
 	Resource        struct {
 		UserInfoURI string `json:"userInfoUri" mapstructure:"userInfoUri"`
 	} `json:"resource" mapstructure:"resource"`
 	ProviderRequirements struct {
+		// Type is used to specifiy: okta|github|google, etc
 		Type         string `json:"requirementsType" mapstructure:"requirementsType"`
 		Organization string `json:"requirementsOrg" mapstructure:"requirementsOrg"`
 	} `json:"providerRequirements" mapstructure:"providerRequirements"`
