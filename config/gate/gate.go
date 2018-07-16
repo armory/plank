@@ -5,16 +5,10 @@ type Gate struct {
 	LDAP LDAP `json:"ldap,omitempty" mapstructure:"ldap"`
 	// https://docs.armory.io/install-guide/auth/#github
 	// suggests github URIs used within standard OAuth implementation
-	// TODO: OAuth structure should likely be used for: Github, Okta, Google, Facebook
+	// TODO: OAuth structure should likely be used for: Github, Google, Facebook
 	Security struct {
 		OAuth2 OAuth2 `json:"oauth2,omitempty" mapstructure:"oauth2"`
 	} `json:"security,omitempty" mapstructure:"security"`
-	// TODO: Verify proper placement for OAuth
-	// spinnaker docs put OAuth under spring:
-	// armory production puts them under security:
-	Spring struct {
-		OAuth2 OAuth2 `json:"oauth2,omitempty" mapstructure:"oauth2"`
-	} `json:"spring,omitempty" mapstructure:"spring"`
 }
 
 type SAML struct {
