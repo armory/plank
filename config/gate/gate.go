@@ -21,6 +21,7 @@ type SAML struct {
 	Enabled  bool   `json:"enabled,omitempty" mapstructure:"enabled"`
 	IssuerID string `json:"issuerId,omitempty" mapstructure:"issuerId"`
 	Metadata string `json:"metadata,omitempty" mapstructure:"metadata"`
+	URL      string `json:"url,omitempty" mapstructure:"url"`
 	PEM      string `json:"pem,omitempty" mapstructure:"pem"`
 }
 
