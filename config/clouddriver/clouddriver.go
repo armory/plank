@@ -26,17 +26,18 @@ type Clouddriver struct {
 
 	Artifacts struct {
 		Github struct {
-			Enabled  bool                    `json:"enabled,omitempty" mapstructure:"enabled"`
-			Accounts []GithubArtifactAccount `json:"accounts,omitempty" mapstructure:"accounts"`
+			Enabled bool                  `json:"enabled,omitempty" mapstructure:"enabled"`
+			Account GithubArtifactAccount `json:"accounts,omitempty" mapstructure:"accounts"`
 		} `json:"github,omitempty" mapstructure:"github"`
 	} `json:"artifacts,omitempty" mapstructure:"artifacts"`
 }
 
 // GithubArtifactAccount settings
 type GithubArtifactAccount struct {
-	Name     string `json:"name,omitempty" mapstructure:"name"`
-	Username string `json:"username,omitempty" mapstructure:"username"`
-	Token    string `json:"token,omitempty" mapstructure:"token"`
+	Name                 string `json:"name,omitempty" mapstructure:"name"`
+	Username             string `json:"username,omitempty" mapstructure:"username"`
+	Token                string `json:"token,omitempty" mapstructure:"token"`
+	UsernamePasswordFile string `json:"usernamePasswordFile,omitempty" mapstructure:"usernamePasswordFile"`
 }
 
 // DockerAccount settings
