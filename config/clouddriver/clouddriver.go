@@ -36,8 +36,10 @@ type Clouddriver struct {
 type GithubArtifactAccount struct {
 	Name                 string `json:"name,omitempty" mapstructure:"name"`
 	Username             string `json:"username,omitempty" mapstructure:"username"`
-	Token                string `json:"token,omitempty" mapstructure:"token"`
+	Password             string `json:"password,omitempty" mapstructure:"password"`
 	UsernamePasswordFile string `json:"usernamePasswordFile,omitempty" mapstructure:"usernamePasswordFile"`
+	Token                string `json:"token,omitempty" mapstructure:"token"`
+	TokenFile            string `json:"tokenFile,omitempty" mapstructure:"tokenFile"`
 }
 
 // DockerAccount settings
