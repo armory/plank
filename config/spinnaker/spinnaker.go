@@ -3,6 +3,7 @@ package spinnaker
 // Spinnaker mirrors spinnaker.yaml files on disk
 type Spinnaker struct {
 	Services Services `json:"services,omitempty" mapstructure:"services"`
+	Logging  Logging  `json:"logging,omitempty" mapstructure:"logging"`
 }
 
 // Services within Spinnaker.
@@ -61,4 +62,12 @@ type Front50 struct {
 type Service struct {
 	Enabled bool   `json:"enabled,omitempty" mapstructure:"enabled"`
 	BaseURL string `json:"baseUrl,omitempty" mapstructure:"baseUrl"`
+}
+
+// Logging levels.
+type Logging struct {
+	Level struct {
+		Spinnaker string `json:"com.netflix.spinnaker,omitempty" mapstructure:"com.netflix.spinnaker"`
+		Root      string `json:"root,omitempty" mapstructure:"root"`
+	} `json:"level,omitempty" mapstructure:"level"`
 }
