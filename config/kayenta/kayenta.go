@@ -15,6 +15,6 @@ type DatadogAccount struct {
 	Name            string   `json:"name,omitempty" mapstructure:"name"`
 	APIKey          string   `json:"apiKey,omitempty" mapstructure:"apiKey"`
 	ApplicationKey  string   `json:"applicationKey,omitempty" mapstructure:"applicationKey"`
-	EndPointBaseURL string   `json:"endpoint,omitempty.baseUrl" mapstructure:"endpoint.baseUrl"`
+	EndPointBaseURL string   `json:"endpoint.baseUrl,omitempty" mapstructure:"endpoint.baseUrl"`
 	SupportedTypes  []string `json:"supportedTypes,omitempty" mapstructure:"supportedTypes"`
 }
