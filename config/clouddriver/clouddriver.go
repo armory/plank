@@ -5,17 +5,17 @@ type Clouddriver struct {
 	DockerRegistry struct {
 		Enabled  bool            `json:"enabled,omitempty" mapstructure:"enabled"`
 		Accounts []DockerAccount `json:"accounts,omitempty" mapstructure:"accounts"`
-	} `json:"dockerRegistry,omitempty,omitempty" mapstructure:"dockerRegistry"`
+	} `json:"dockerRegistry,omitempty" mapstructure:"dockerRegistry"`
 
 	Kubernetes struct {
-		Enabled  bool                `json:"enabled,omitempty,omitempty" mapstructure:"enabled"`
-		Accounts []KubernetesAccount `json:"accounts,omitempty,omitempty" mapstructure:"accounts"`
-	} `json:"kubernetes,omitempty,omitempty" mapstructure:"kubernetes"`
+		Enabled  bool                `json:"enabled,omitempty" mapstructure:"enabled"`
+		Accounts []KubernetesAccount `json:"accounts,omitempty" mapstructure:"accounts"`
+	} `json:"kubernetes,omitempty" mapstructure:"kubernetes"`
 
 	AWS struct {
-		Enabled           bool         `json:"enabled,omitempty,omitempty" mapstructure:"enabled"`
-		DefaultAssumeRole string       `json:"defaultAssumeRole,omitempty,omitempty" mapstructure:"defaultAssumeRole"`
-		DefaultRegions    []AWSRegion  `json:"defaultRegions,omitempty,omitempty" mapstructure:"defaultRegions"`
+		Enabled           bool         `json:"enabled,omitempty" mapstructure:"enabled"`
+		DefaultAssumeRole string       `json:"defaultAssumeRole,omitempty" mapstructure:"defaultAssumeRole"`
+		DefaultRegions    []AWSRegion  `json:"defaultRegions,omitempty" mapstructure:"defaultRegions"`
 		Accounts          []AWSAccount `json:"accounts,omitempty" mapstructure:"accounts"`
 	} `json:"aws,omitempty" mapstructure:"aws"`
 
