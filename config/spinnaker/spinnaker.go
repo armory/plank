@@ -16,7 +16,10 @@ type Services struct {
 		Jira Jira `json:"jira,omitempty" mapstructure:"jira"`
 	} `json:"features,omitempty" mapstructure:"features"`
 	Deck struct {
+		Protocol string `json:"protocol,omitempty" mapstructure:"protocol"`
 		Hostname string `json:"hostname,omitempty" mapstructure:"hostname"`
+		BaseURL  string `json:"baseUrl,omitempty" mapstructure:"baseUrl"`
+		GateURL  string `json:"gateUrl,omitempty" mapstructure:"gateUrl"`
 	} `json:"deck,omitempty" mapstructure:"deck"`
 }
 
