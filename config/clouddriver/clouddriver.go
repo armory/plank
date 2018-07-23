@@ -30,6 +30,32 @@ type Clouddriver struct {
 			Account GithubArtifactAccount `json:"accounts,omitempty" mapstructure:"accounts"`
 		} `json:"github,omitempty" mapstructure:"github"`
 	} `json:"artifacts,omitempty" mapstructure:"artifacts"`
+
+	ServiceLimits ServiceLimits `json:"serviceLimits,omitempty" mapstructure:"serviceLimits"`
+}
+
+// ServiceLimits settings
+type ServiceLimits struct {
+	CloudProviderOverrides struct {
+		AWS struct {
+			RateLimit string `json:"rateLimit,omitempty" mapstructure:"rateLimit"`
+		} `json:"aws,omitempty" mapstructure:"aws"`
+	} `json:"cloudProviderOverrides,omitempty" mapstructure:"cloudProviderOverrides"`
+
+	ImplementationLimits struct {
+		AmazaonAutoScaling struct {
+			Defaults OverrideDefaults `json:"defaults,omitempty" mapstructure:"defaults"`
+		} `json:"amazonAutoScaling,omitempty" mapstructure:"amazonAutoScaling"`
+
+		AmazonElasticLoadBalancing struct {
+			Defaults OverrideDefaults `json:"defaults,omitempty" mapstructure:"defaults"`
+		} `json:"amazonElasticLoadBalancing,omitempty" mapstructure:"amazonElasticLoadBalancing"`
+	} `json:"implementationLimits,omitempty" mapstructure:"implementationLimits"`
+}
+
+// OverrideDefaults settings
+type OverrideDefaults struct {
+	RateLimit string `json:"rateLimit,omitempty" mapstructure:"rateLimit"`
 }
 
 // GithubArtifactAccount settings
@@ -75,6 +101,12 @@ type AWSAccount struct {
 // AWSRegion settings
 type AWSRegion struct {
 	Name string `json:"name,omitempty" mapstructure:"name"`
+}
+
+// AWSClient settings
+type AWSClient struct {
+	MaxErrorRetry               string `json:"maxErrorRetry,omitempty" mapstructure:"maxErrorRetry"`
+	AddSpinnakerUsertoUserAgent bool   `json:"addSpinnakerUserToUserAgent,omitempty" mapstructure:"addSpinnakerUserToUserAgent"`
 }
 
 // GCPAccount settings
