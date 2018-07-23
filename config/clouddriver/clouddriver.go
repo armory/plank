@@ -12,6 +12,10 @@ type Clouddriver struct {
 		Accounts []KubernetesAccount `json:"accounts,omitempty,omitempty" mapstructure:"accounts"`
 	} `json:"kubernetes,omitempty,omitempty" mapstructure:"kubernetes"`
 
+	// AWS Credentials are passed either as environment variables or through
+	// a standard AWS file $HOME/.aws/credentials
+	// See providers.aws.primaryCredentials in spinnaker.yml for more
+	// info on setting environment variables.
 	AWS struct {
 		Enabled           bool         `json:"enabled,omitempty,omitempty" mapstructure:"enabled"`
 		DefaultAssumeRole string       `json:"defaultAssumeRole,omitempty,omitempty" mapstructure:"defaultAssumeRole"`
