@@ -4,18 +4,18 @@ package spinnaker
 type Spinnaker struct {
 	Services Services `json:"services,omitempty" mapstructure:"services"`
 	Logging  Logging  `json:"logging,omitempty" mapstructure:"logging"`
+	Features struct {
+		Jira Jira `json:"jira,omitempty" mapstructure:"jira"`
+	} `json:"features,omitempty" mapstructure:"features"`
 }
 
 // Services within Spinnaker.
 type Services struct {
-	Fiat     Service `json:"fiat,omitempty" mapstructure:"fiat"`
-	Front50  Front50 `json:"front50,omitempty" mapstructure:"front50"`
-	Jenkins  Jenkins `json:"jenkins,omitempty" mapstructure:"jenkins"`
-	Redis    Redis   `json:"redis,omitempty" mapstructure:"redis"`
-	Features struct {
-		Jira Jira `json:"jira,omitempty" mapstructure:"jira"`
-	} `json:"features,omitempty" mapstructure:"features"`
-	Deck struct {
+	Fiat    Service `json:"fiat,omitempty" mapstructure:"fiat"`
+	Front50 Front50 `json:"front50,omitempty" mapstructure:"front50"`
+	Jenkins Jenkins `json:"jenkins,omitempty" mapstructure:"jenkins"`
+	Redis   Redis   `json:"redis,omitempty" mapstructure:"redis"`
+	Deck    struct {
 		Protocol string `json:"protocol,omitempty" mapstructure:"protocol"`
 		Hostname string `json:"hostname,omitempty" mapstructure:"hostname"`
 		BaseURL  string `json:"baseUrl,omitempty" mapstructure:"baseUrl"`
