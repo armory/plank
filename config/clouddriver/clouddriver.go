@@ -57,6 +57,7 @@ type KubernetesAccount struct {
 	Namespaces       []string         `json:"namespaces,omitempty" mapstructure:"namespaces"`
 	KubeconfigFile   string           `json:"kubeconfigFile,omitempty" mapstructure:"kubeconfigFile"`
 	ProviderVersion  string           `json:"providerVersion,omitempty" mapstructure:"providerVersion"`
+	ServiceAccount   bool             `json:"serviceAccount,omitempty" mapstructure:"serviceAccount"`
 	DockerRegistries []DockerRegistry `json:"dockerRegistries,omitempty" mapstructure:"dockerRegistries"`
 }
 

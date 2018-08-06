@@ -12,4 +12,12 @@ type Echo struct {
 		Token   string `json:"token,omitempty" mapstructure:"token"`
 		BotName string `json:"botName,omitempty" mapstructure:"botName"`
 	} `json:"slack,omitempty" mapstructure:"slack"`
+
+	ArmoryWebHooks struct {
+		Enabled    bool `json:"enabled,omitempty" mapstructure:"enabled"`
+		Forwarding struct {
+			BaseURL  string `json:"baseUrl,omitempty" mapstructure:"baseUrl"`
+			EndPoint string `json:"endpoint,omitempty" mapstructure:"endpoint"`
+		} `json:"forwarding,omitempty" mapstructure:"forwarding"`
+	} `json:"armorywebhooks,omitempty" mapstructure:"armorywebhooks"`
 }
