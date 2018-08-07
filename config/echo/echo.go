@@ -3,7 +3,7 @@ package echo
 // Echo mirrors the echo.yml file on disk
 type Echo struct {
 	Diagnostics struct {
-		Enabled bool   `json:"enabled,omitempty" mapstructure:"enabled"`
+		Enabled bool   `json:"enabled" mapstructure:"enabled"`
 		ID      string `json:"id,omitempty" mapstructure:"id"`
 	} `json:"diagnostics,omitempty" mapstructure:"diagnostics"`
 
