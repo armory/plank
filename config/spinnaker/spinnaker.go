@@ -24,7 +24,7 @@ type Services struct {
 		GateURL  string `json:"gateUrl,omitempty" mapstructure:"gateUrl"`
 		Auth     struct {
 			Enabled bool `json:"enabled,omitempty" mapstructure:"enabled"`
-		} `json:"auth,omitempty" mapstructure:"enabled"`
+		} `json:"auth,omitempty" mapstructure:"auth"`
 	} `json:"deck,omitempty" mapstructure:"deck"`
 }
 
