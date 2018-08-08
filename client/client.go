@@ -1,8 +1,10 @@
 package client
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"net/http"
 	"time"
@@ -57,12 +59,9 @@ func BaseURL(address string) Option {
 
 // Get a JSON payload from the URL then decode it into the 'dest' arguement.
 func (c *Client) Get(path string, dest interface{}) error {
-	if len(path) == 0 || path[0] != '/' {
-		return errors.New("invalid path. must start with '/'")
-	}
 	var err error
 	for i := 0; i <= c.maxRetry; i++ {
-		resp, err := c.http.Get(c.baseURL + path)
+		resp, err := c.http.Get(c.url(path))
 		success := resp.StatusCode >= 200 && resp.StatusCode < 400
 		if success && err == nil {
 			err := json.NewDecoder(resp.Body).Decode(dest)
@@ -77,4 +76,36 @@ func (c *Client) Get(path string, dest interface{}) error {
 		time.Sleep(interval)
 	}
 	return err
+}
+
+// Post a JSON payload from the URL then decode it into the 'dest' arguement.
+func (c *Client) Post(path string, body interface{}, dest interface{}) error {
+	var err error
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return fmt.Errorf("could not post - body could not be marshaled to json - %v", err)
+	}
+	for i := 0; i <= c.maxRetry; i++ {
+		resp, err := c.http.Post(c.url(path), "application/context+json", bytes.NewBuffer(jsonBody))
+		success := resp.StatusCode >= 200 && resp.StatusCode < 400
+		if success && err == nil {
+			err := json.NewDecoder(resp.Body).Decode(dest)
+			defer resp.Body.Close()
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+		// exponential back-off
+		interval := c.retryIncrement * time.Duration(math.Exp2(float64(i)))
+		time.Sleep(interval)
+	}
+	return err
+}
+
+func (c *Client) url(path string) string {
+	if c.baseURL != "" {
+		return c.baseURL + path
+	}
+	return path
 }

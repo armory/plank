@@ -1,78 +1,107 @@
 package applications
 
 import (
-	"github.com/armory/plank/tasks"
-	"net/http"
-	log "github.com/sirupsen/logrus"
 	"encoding/json"
-	"time"
+	"errors"
 	"fmt"
+	"time"
 )
-
-// CreationOption used when making a new application.
-type CreationOption int
-
-const (
-	// WaitForCompletion of the Create operation before returning.
-	WaitForCompletion CreationOption = iota
-)
-
-// Create an application using the DefaultService.
-func Create(appCreateParams Application, opts ...CreationOption) (Application, error) {
-	var app Application
-
-	// this should be simplier by calling the service create
-	for _, o := range opts {
-		switch o {
-		case WaitForCompletion:
-			taskId, err := DefaultService.Create(appCreateParams, opts...)
-			if err != nil {
-				return app, err
-			}
-
-			// check the status before returning the app
-			tasks.WaitFor(taskId, []tasks.TaskStatus{tasks.Succeeded, tasks.Terminal}, time.Second*2, 10)
-
-			return DefaultService.Get(app.Name)
-		default:
-			_, err := DefaultService.Create(appCreateParams, opts...)
-			return app, err
-		}
-	}
-}
 
 // Create an application.
-func (s *Service) Create(a Application, opts ...CreationOption) (tasks.ID, error) {
-	for _, o := range opts {
-		switch o {
-		case WaitForCompletion:
-			client := &http.Client{}
-			res, _ := client.Get("http://spinnaker.dev.armory.io:8084/applications/armoryhellodeploy/tasks/01CK71Q248ZNFNBHZMEGCAYEK7")
-			decoder := json.NewDecoder(res.Body)
+func (s *Service) Create(a Application) (Application, error) {
+	payload := newAppCreationRequest(a)
+	var ref taskRefResponse
+	err := s.client.Post(s.orcaURL+"/ops", payload, ref)
+	if err != nil {
+		return Application{}, fmt.Errorf("could not create application - %v", err)
+	}
+	task, err := s.pollTaskStatus(ref.Ref, 4*time.Minute)
+	if task.Status == "TERMINAL" {
+		return Application{}, errors.New("failed to create applicaiton")
+	}
 
-			task := tasks.Task{}
-			decoder.Decode(&task)
-			log.Info(task)
+	// This really shouldn't have to be here, but after the task to create an
+	// app is marked complete sometimes the object still doesn't exist. So
+	// after doing the create, and getting back a completion, we still need
+	// to poll till we find the app in order to make sure future operations will
+	// succeed.
+	err = s.pollAppConfig(a.Name, 7*time.Minute)
+	return a, err
+}
 
-			// close it here because we're doing it in a loop
-			res.Body.Close()
+type taskRefResponse struct {
+	Ref string `json:"ref"`
+}
+
+type executionResponse struct {
+	ID      string `json:"id"`
+	Status  string `json:"status"`
+	EndTime int    `json:"endTime"`
+}
+
+// todo: replace late night shortcut to not have to make all the structs.
+const createAppTmpl = `{
+	"application": "%s",
+	"description": "Create Application: %s",
+	"job" :[
+		{
+			"application": {
+				"email": "%s",
+				"name": "%s"
+			},
+			"type": "createApplication"
+		}
+	]
+}`
+
+func newAppCreationRequest(a Application) map[string]interface{} {
+	j := fmt.Sprintf(createAppTmpl, a.Name, a.Name, a.Email, a.Name)
+	out := map[string]interface{}{}
+	json.Unmarshal([]byte(j), &out)
+	return out
+}
+
+func (s *Service) pollTaskStatus(refURL string, timeout time.Duration) (executionResponse, error) {
+	timer := time.NewTimer(timeout)
+	t := time.NewTicker(1 * time.Second)
+	defer t.Stop()
+
+	for range t.C {
+		var body executionResponse
+		s.client.Get(s.orcaURL+refURL, &body)
+		if body.EndTime > 0 {
+			return body, nil
+		}
+		select {
+		case <-timer.C:
+			return executionResponse{}, errors.New("timed out waiting for task to complete")
 		default:
-			return nil, nil
 		}
 	}
+	return executionResponse{}, errors.New("exited poll loop before completion")
 }
 
-func Get(name string) (Application, error) {
-	return DefaultService.Get(name)
+func (s *Service) getTask(refURL string) (executionResponse, error) {
+	var body executionResponse
+	err := s.client.Get(s.orcaURL+refURL, &body)
+	return body, err
 }
 
-func (s *Service) Get(name string) (Application, error) {
-	client := &http.Client{}
-	res, _ := client.Get(fmt.Sprintf("http://spinnaker.dev.armory.io:8084/applications/%s", name))
-	defer res.Body.Close()
-	decoder := json.NewDecoder(res.Body)
+func (s *Service) pollAppConfig(app string, timeout time.Duration) error {
+	timer := time.NewTimer(timeout)
+	t := time.NewTicker(5 * time.Second)
+	defer t.Stop()
 
-	var app Application
-	decoder.Decode(&app)
-	log.Info(app)
+	for range t.C {
+		_, err := s.Get(app)
+		if err == nil {
+			return nil
+		}
+		select {
+		case <-timer.C:
+			return errors.New("timed out waiting for app to appear")
+		default:
+		}
+	}
+	return errors.New("exited poll loop before completion")
 }
