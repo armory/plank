@@ -20,6 +20,9 @@ type Services struct {
 		Hostname string `json:"hostname,omitempty" mapstructure:"hostname"`
 		BaseURL  string `json:"baseUrl,omitempty" mapstructure:"baseUrl"`
 		GateURL  string `json:"gateUrl,omitempty" mapstructure:"gateUrl"`
+		Auth     struct {
+			Enabled bool `json:"enabled,omitempty" mapstructure:"enabled"`
+		} `json:"auth,omitempty" mapstructure:"enabled"`
 	} `json:"deck,omitempty" mapstructure:"deck"`
 }
 
