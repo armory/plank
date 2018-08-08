@@ -11,7 +11,7 @@ import (
 func (s *Service) Create(a Application) (Application, error) {
 	payload := newAppCreationRequest(a)
 	var ref taskRefResponse
-	err := s.client.Post(s.orcaURL+"/ops", payload, ref)
+	err := s.client.Post(s.orcaURL+"/ops", payload, &ref)
 	if err != nil {
 		return Application{}, fmt.Errorf("could not create application - %v", err)
 	}
@@ -91,7 +91,6 @@ func (s *Service) pollAppConfig(app string, timeout time.Duration) error {
 	timer := time.NewTimer(timeout)
 	t := time.NewTicker(5 * time.Second)
 	defer t.Stop()
-
 	for range t.C {
 		_, err := s.Get(app)
 		if err == nil {

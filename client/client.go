@@ -59,11 +59,13 @@ func BaseURL(address string) Option {
 
 // Get a JSON payload from the URL then decode it into the 'dest' arguement.
 func (c *Client) Get(path string, dest interface{}) error {
-	var err error
+	var reterr error
 	for i := 0; i <= c.maxRetry; i++ {
 		resp, err := c.http.Get(c.url(path))
-		success := resp.StatusCode >= 200 && resp.StatusCode < 400
-		if success && err == nil {
+		if resp == nil {
+			reterr = errors.New("empty response")
+		}
+		if err == nil && resp.StatusCode >= 200 && resp.StatusCode < 400 {
 			err := json.NewDecoder(resp.Body).Decode(dest)
 			defer resp.Body.Close()
 			if err != nil {
@@ -75,7 +77,7 @@ func (c *Client) Get(path string, dest interface{}) error {
 		interval := c.retryIncrement * time.Duration(math.Exp2(float64(i)))
 		time.Sleep(interval)
 	}
-	return err
+	return reterr
 }
 
 // Post a JSON payload from the URL then decode it into the 'dest' arguement.
@@ -87,8 +89,10 @@ func (c *Client) Post(path string, body interface{}, dest interface{}) error {
 	}
 	for i := 0; i <= c.maxRetry; i++ {
 		resp, err := c.http.Post(c.url(path), "application/context+json", bytes.NewBuffer(jsonBody))
-		success := resp.StatusCode >= 200 && resp.StatusCode < 400
-		if success && err == nil {
+		if resp == nil {
+			err = errors.New("empty response")
+		}
+		if err == nil && resp.StatusCode >= 200 && resp.StatusCode < 400 {
 			err := json.NewDecoder(resp.Body).Decode(dest)
 			defer resp.Body.Close()
 			if err != nil {
@@ -96,6 +100,7 @@ func (c *Client) Post(path string, body interface{}, dest interface{}) error {
 			}
 			return nil
 		}
+
 		// exponential back-off
 		interval := c.retryIncrement * time.Duration(math.Exp2(float64(i)))
 		time.Sleep(interval)
