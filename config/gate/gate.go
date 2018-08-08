@@ -12,12 +12,12 @@ type Gate struct {
 }
 
 type SAML struct {
-	Enabled          bool   `json:"enabled,omitempty" mapstructure:"enabled"`
-	IssuerID         string `json:"issuerId,omitempty" mapstructure:"issuerId"`
-	Metadata         string `json:"metadata,omitempty" mapstructure:"metadata"`
-	RedirectHostname string `json:"redirectHostname,omitempty" mapstructure:"redirectHostname"`
-	URL              string `json:"url,omitempty" mapstructure:"url"`
-	PEM              string `json:"pem,omitempty" mapstructure:"pem"`
+	Enabled           bool   `json:"enabled,omitempty" mapstructure:"enabled"`
+	IssuerID          string `json:"issuerId,omitempty" mapstructure:"issuerId"`
+	MetadataURL       string `json:"metadataUrl,omitempty" mapstructure:"metadataUrl"`
+	KeyStore          string `json:"keyStore,omitempty" mapstructure:"keyStore"`
+	KeyStorePassword  string `json:"keyStorePassword,omitempty" mapstructure:"keyStorePassword"`
+	KeyStoreAliasName string `json:"keyStoreAliasName,omitempty" mapstructure:"keyStoreAliasName"`
 }
 
 // LDAP setup https://docs.armory.io/install-guide/auth/#ldap-authentication
