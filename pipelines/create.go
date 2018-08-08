@@ -1,15 +1,14 @@
 package pipelines
 
 import (
-	"github.com/armory/plank/tasks"
+	"fmt"
 )
 
-// Create a pipeline using the DefaultService.
-func Create(p Pipeline) (tasks.ID, error) {
-	return DefaultService.Create(p)
-}
-
-// Create a pipeline.
-func (s *Service) Create(p Pipeline) (tasks.ID, error) {
-	return "", nil
+func (s *Service) Create(p Pipeline) error {
+	var body interface{}
+	err := s.client.Post(s.front50URL+"/pipelines", p, &body)
+	if err != nil {
+		return fmt.Errorf("could not create pipeline - %v", err)
+	}
+	return nil
 }
