@@ -14,6 +14,8 @@ type Services struct {
 	Fiat    Service `json:"fiat,omitempty" mapstructure:"fiat"`
 	Front50 Front50 `json:"front50,omitempty" mapstructure:"front50"`
 	Jenkins Jenkins `json:"jenkins,omitempty" mapstructure:"jenkins"`
+	Igor    Service `json:"igor,omitempty" mapstructure:"igor"`
+	Kayenta Service `json:"kayenta,omitempty" mapstructure:"kayenta"`
 	Redis   Redis   `json:"redis,omitempty" mapstructure:"redis"`
 	Deck    struct {
 		Protocol string `json:"protocol,omitempty" mapstructure:"protocol"`
