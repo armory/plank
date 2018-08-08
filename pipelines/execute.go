@@ -1,8 +1,8 @@
 package pipelines
 
 // Execute a pipeline using the DefaultService.
-func Execute(p ID) error {
-	return DefaultService.Execute(p)
+func Execute(id ID) error {
+	return DefaultService.Execute(id)
 }
 
 // Execute a pipeline.

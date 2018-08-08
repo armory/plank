@@ -1,5 +1,10 @@
 package tasks
 
 type ID string
+type TaskStatus string
 
-type Task struct{}
+const (
+	Succeeded  TaskStatus = "SUCCEEDED"
+	NotStarted TaskStatus = "NOT_STARTED"
+	Terminal   TaskStatus = "TERMINAL"
+)
