@@ -18,10 +18,9 @@ type postGetter interface {
 
 // Service for interacting with the applications API.
 type Service struct {
-	client     postGetter
-	orcaURL    string
-	front50URL string
-	pollTime   time.Duration
+	client   postGetter
+	orcaURL  string
+	pollTime time.Duration
 }
 
 // Option for configuring a service.
@@ -31,10 +30,9 @@ type Option func(*Service) error
 func NewService(options ...Option) *Service {
 	defClient, _ := client.New()
 	s := &Service{
-		client:     defClient,
-		orcaURL:    defaultOrcaURL,
-		front50URL: defaultFront50URL,
-		pollTime:   7 * time.Minute,
+		client:   defClient,
+		orcaURL:  defaultOrcaURL,
+		pollTime: 7 * time.Minute,
 	}
 	for _, option := range options {
 		// TODO: handle errors

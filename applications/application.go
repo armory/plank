@@ -10,6 +10,6 @@ type Application struct {
 // given application name.
 func (s *Service) Get(name string) (Application, error) {
 	var app Application
-	err := s.client.Get(s.front50URL+"/v2/applications/"+name, &app)
+	err := s.client.Get(s.orcaURL+"/v2/applications/"+name, &app)
 	return app, err
 }

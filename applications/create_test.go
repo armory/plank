@@ -10,10 +10,9 @@ import (
 func TestCreate(t *testing.T) {
 	c, _ := client.New(client.MaxRetry(1))
 	s := Service{
-		orcaURL:    "http://spinnaker.dev.armory.io:8083",
-		front50URL: "http://spinnaker.dev.armory.io:8080",
-		client:     c,
-		pollTime:   1 * time.Second,
+		orcaURL:  "http://spinnaker.dev.armory.io:8083",
+		client:   c,
+		pollTime: 1 * time.Second,
 	}
 	name := "plankappcreationtest"
 	email := "test@armory.io"
