@@ -7,7 +7,10 @@ import (
 // DefaultService to use when no service is received.
 var DefaultService *Service
 
-var defaultFront50URL = "http://armory-front50:8080"
+var (
+	defaultFront50URL = "http://armory-front50:8080"
+	defaultGateURL    = "http://armory-gate:8084"
+)
 
 type postGetter interface {
 	Post(path string, body, dest interface{}) error
@@ -18,6 +21,7 @@ type postGetter interface {
 type Service struct {
 	client     postGetter
 	front50URL string
+	gateURL    string
 }
 
 // Option for configuring a service.

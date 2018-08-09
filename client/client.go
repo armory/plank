@@ -102,7 +102,6 @@ func (c *Client) Post(path string, body interface{}, dest interface{}) error {
 		}
 		if err == nil && resp.StatusCode >= 200 && resp.StatusCode < 400 {
 			err := json.NewDecoder(resp.Body).Decode(dest)
-			defer resp.Body.Close()
 			if err != nil {
 				return err
 			}
