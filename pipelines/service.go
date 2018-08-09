@@ -40,3 +40,19 @@ func NewService(options ...Option) *Service {
 	}
 	return s
 }
+
+// Front50URL option to change the URL used to talk to Orca.
+func Front50URL(url string) Option {
+	return func(s *Service) error {
+		s.front50URL = url
+		return nil
+	}
+}
+
+// GateURL option to change the URL used to talk to Orca.
+func GateURL(url string) Option {
+	return func(s *Service) error {
+		s.gateURL = url
+		return nil
+	}
+}

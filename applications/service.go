@@ -48,3 +48,11 @@ func PollTime(t time.Duration) Option {
 		return nil
 	}
 }
+
+// OrcaURL option to change the URL used to talk to Orca.
+func OrcaURL(url string) Option {
+	return func(s *Service) error {
+		s.orcaURL = url
+		return nil
+	}
+}
