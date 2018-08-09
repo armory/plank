@@ -15,7 +15,7 @@ func (s *Service) Create(a Application) (Application, error) {
 	if err != nil {
 		return Application{}, fmt.Errorf("could not create application - %v", err)
 	}
-	task, err := s.pollTaskStatus(ref.Ref, 4*time.Minute)
+	task, err := s.pollTaskStatus(ref.Ref)
 	if task.Status == "TERMINAL" {
 		return Application{}, errors.New("failed to create applicaiton")
 	}
@@ -25,7 +25,7 @@ func (s *Service) Create(a Application) (Application, error) {
 	// after doing the create, and getting back a completion, we still need
 	// to poll till we find the app in order to make sure future operations will
 	// succeed.
-	err = s.pollAppConfig(a.Name, 7*time.Minute)
+	err = s.pollAppConfig(a.Name)
 	return a, err
 }
 
@@ -61,8 +61,8 @@ func newAppCreationRequest(a Application) map[string]interface{} {
 	return out
 }
 
-func (s *Service) pollTaskStatus(refURL string, timeout time.Duration) (executionResponse, error) {
-	timer := time.NewTimer(timeout)
+func (s *Service) pollTaskStatus(refURL string) (executionResponse, error) {
+	timer := time.NewTimer(s.pollTime)
 	t := time.NewTicker(1 * time.Second)
 	defer t.Stop()
 
@@ -87,8 +87,8 @@ func (s *Service) getTask(refURL string) (executionResponse, error) {
 	return body, err
 }
 
-func (s *Service) pollAppConfig(app string, timeout time.Duration) error {
-	timer := time.NewTimer(timeout)
+func (s *Service) pollAppConfig(app string) error {
+	timer := time.NewTimer(s.pollTime)
 	t := time.NewTicker(5 * time.Second)
 	defer t.Stop()
 	for range t.C {
@@ -98,7 +98,7 @@ func (s *Service) pollAppConfig(app string, timeout time.Duration) error {
 		}
 		select {
 		case <-timer.C:
-			return errors.New("timed out waiting for app to appear")
+			return fmt.Errorf("timed out waiting for app to appear - %v", err)
 		default:
 		}
 	}

@@ -42,6 +42,14 @@ func New(options ...Option) (*Client, error) {
 	return c, nil
 }
 
+// MaxRetry set to a number.
+func MaxRetry(num int) Option {
+	return func(c *Client) error {
+		c.maxRetry = num
+		return nil
+	}
+}
+
 // BaseURL for the client to use.
 func BaseURL(address string) Option {
 	return func(c *Client) error {

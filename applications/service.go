@@ -2,6 +2,7 @@ package applications
 
 import (
 	"github.com/armory/plank/client"
+	"time"
 )
 
 // DefaultService to use when no service is received.
@@ -20,6 +21,7 @@ type Service struct {
 	client     postGetter
 	orcaURL    string
 	front50URL string
+	pollTime   time.Duration
 }
 
 // Option for configuring a service.
@@ -32,10 +34,19 @@ func NewService(options ...Option) *Service {
 		client:     defClient,
 		orcaURL:    defaultOrcaURL,
 		front50URL: defaultFront50URL,
+		pollTime:   7 * time.Minute,
 	}
 	for _, option := range options {
 		// TODO: handle errors
 		option(s)
 	}
 	return s
+}
+
+// PollTime to be used when polling. Useful in integration tests.
+func PollTime(t time.Duration) Option {
+	return func(s *Service) error {
+		s.pollTime = t
+		return nil
+	}
 }

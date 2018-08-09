@@ -4,14 +4,16 @@ import (
 	"github.com/armory/plank/client"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestCreate(t *testing.T) {
-	c, _ := client.New()
+	c, _ := client.New(client.MaxRetry(1))
 	s := Service{
 		orcaURL:    "http://spinnaker.dev.armory.io:8083",
-		front50URL: "http://spinnaker.dev.armory.io:8",
+		front50URL: "http://spinnaker.dev.armory.io:8080",
 		client:     c,
+		pollTime:   1 * time.Second,
 	}
 	name := "plankappcreationtest"
 	email := "test@armory.io"
