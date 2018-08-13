@@ -18,6 +18,7 @@ type SAML struct {
 	KeyStore          string `json:"keyStore,omitempty" mapstructure:"keyStore"`
 	KeyStorePassword  string `json:"keyStorePassword,omitempty" mapstructure:"keyStorePassword"`
 	KeyStoreAliasName string `json:"keyStoreAliasName,omitempty" mapstructure:"keyStoreAliasName"`
+	RedirectHostname  string `json:"redirectHostname,omitempty" mapstructure:"redirectHostname"`
 }
 
 // LDAP setup https://docs.armory.io/install-guide/auth/#ldap-authentication
