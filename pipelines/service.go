@@ -13,7 +13,7 @@ var (
 )
 
 type postGetter interface {
-	Post(path string, body, dest interface{}) error
+	Post(path string, contentType client.ContentType, body, dest interface{}) error
 	Get(path string, dest interface{}) error
 }
 

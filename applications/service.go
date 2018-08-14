@@ -3,6 +3,7 @@ package applications
 import (
 	"github.com/armory/plank/client"
 	"time"
+	"log"
 )
 
 // DefaultService to use when no service is received.
@@ -12,7 +13,7 @@ var defaultOrcaURL = "http://armory-orca:8083"
 var defaultFront50URL = "http://armory-front50:8080"
 
 type postGetter interface {
-	Post(path string, body, dest interface{}) error
+	Post(path string, contentType client.ContentType, body, dest interface{}) error
 	Get(path string, dest interface{}) error
 }
 
@@ -21,6 +22,7 @@ type Service struct {
 	client   postGetter
 	orcaURL  string
 	pollTime time.Duration
+	log      log.Logger
 }
 
 // Option for configuring a service.
@@ -51,6 +53,14 @@ func PollTime(t time.Duration) Option {
 
 // OrcaURL option to change the URL used to talk to Orca.
 func OrcaURL(url string) Option {
+	return func(s *Service) error {
+		s.orcaURL = url
+		return nil
+	}
+}
+
+// Set
+func Log(url string) Option {
 	return func(s *Service) error {
 		s.orcaURL = url
 		return nil

@@ -5,19 +5,22 @@ import (
 	"errors"
 	"fmt"
 	"time"
+	"github.com/armory/plank/client"
+	"github.com/sirupsen/logrus"
 )
 
 // Create an application.
 func (s *Service) Create(a Application) (Application, error) {
 	payload := newAppCreationRequest(a)
 	var ref taskRefResponse
-	err := s.client.Post(s.orcaURL+"/ops", payload, &ref)
+	err := s.client.Post(s.orcaURL+"/ops", client.ApplicationContextJson, payload, &ref)
 	if err != nil {
 		return Application{}, fmt.Errorf("could not create application - %v", err)
 	}
+	logrus.Infof("Task creating application: '%s'", ref.Ref)
 	task, err := s.pollTaskStatus(ref.Ref)
-	if task.Status == "TERMINAL" {
-		return Application{}, errors.New("failed to create applicaiton")
+	if  err != nil || task.Status == "TERMINAL"  {
+		return Application{}, errors.New(fmt.Sprintf("failed to create application: %s", err))
 	}
 
 	// This really shouldn't have to be here, but after the task to create an
@@ -62,6 +65,9 @@ func newAppCreationRequest(a Application) map[string]interface{} {
 }
 
 func (s *Service) pollTaskStatus(refURL string) (executionResponse, error) {
+	if refURL == "" {
+		return executionResponse{}, errors.New("no taskRef provided to follow")
+	}
 	timer := time.NewTimer(s.pollTime)
 	t := time.NewTicker(1 * time.Second)
 	defer t.Stop()

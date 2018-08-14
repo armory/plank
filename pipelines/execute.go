@@ -2,6 +2,7 @@ package pipelines
 
 import (
 	"net/url"
+	"github.com/armory/plank/client"
 )
 
 type pipelineExecution struct {
@@ -26,6 +27,6 @@ func (s *Service) Execute(application, pipelineName string) (PipelineRef, error)
 		User:    "anonymous",
 	}
 	var ref PipelineRef
-	err := s.client.Post(u.String(), e, &ref)
+	err := s.client.Post(u.String(), client.ApplicationJson, e, &ref)
 	return ref, err
 }

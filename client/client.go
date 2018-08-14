@@ -8,6 +8,7 @@ import (
 	"math"
 	"net/http"
 	"time"
+	"io/ioutil"
 )
 
 // Client for working with API servers that accept and return JSON payloads.
@@ -17,6 +18,13 @@ type Client struct {
 	retryIncrement time.Duration
 	maxRetry       int
 }
+
+type ContentType string
+
+const (
+	ApplicationJson        ContentType = "application/json"
+	ApplicationContextJson ContentType = "application/context+json"
+)
 
 // Option for configuring a new Client.
 type Option func(*Client) error
@@ -89,23 +97,32 @@ func (c *Client) Get(path string, dest interface{}) error {
 }
 
 // Post a JSON payload from the URL then decode it into the 'dest' arguement.
-func (c *Client) Post(path string, body interface{}, dest interface{}) error {
+func (c *Client) Post(path string, contentType ContentType, body interface{}, dest interface{}) error {
 	var err error
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
 		return fmt.Errorf("could not post - body could not be marshaled to json - %v", err)
 	}
 	for i := 0; i <= c.maxRetry; i++ {
-		resp, err := c.http.Post(c.url(path), "application/context+json", bytes.NewBuffer(jsonBody))
+		resp, err := c.http.Post(c.url(path), string(contentType), bytes.NewBuffer(jsonBody))
 		if resp == nil {
 			err = errors.New("empty response")
 		}
+
 		if err == nil && resp.StatusCode >= 200 && resp.StatusCode < 400 {
-			err := json.NewDecoder(resp.Body).Decode(dest)
+			b, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				return err
 			}
-			return nil
+
+			if len(b) > 0 {
+				err := json.Unmarshal(b, &dest)
+				if err != nil {
+					return err
+				}
+				return nil
+			}
+			continue // something went funky, let's try again
 		}
 
 		// exponential back-off
