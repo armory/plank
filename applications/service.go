@@ -19,10 +19,11 @@ type postGetter interface {
 
 // Service for interacting with the applications API.
 type Service struct {
-	client   postGetter
-	orcaURL  string
-	pollTime time.Duration
-	log      log.Logger
+	client     postGetter
+	orcaURL    string
+	front50URL string
+	pollTime   time.Duration
+	log        log.Logger
 }
 
 // Option for configuring a service.
@@ -55,6 +56,14 @@ func PollTime(t time.Duration) Option {
 func OrcaURL(url string) Option {
 	return func(s *Service) error {
 		s.orcaURL = url
+		return nil
+	}
+}
+
+// Front50URL option to change the URL used to talk to Gate.
+func Front50URL(url string) Option {
+	return func(s *Service) error {
+		s.front50URL = url
 		return nil
 	}
 }
