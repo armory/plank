@@ -20,7 +20,13 @@ func (s *Service) Create(a Application) (Application, error) {
 	logrus.Infof("Task creating application: '%s'", ref.Ref)
 	task, err := s.pollTaskStatus(ref.Ref)
 	if  err != nil || task.Status == "TERMINAL"  {
-		return Application{}, errors.New(fmt.Sprintf("failed to create application: %s", err))
+		var errMsg string
+		if err != nil {
+			errMsg = err.Error()
+		} else {
+			errMsg = "received status TERMINAL"
+		}
+		return Application{}, errors.New(fmt.Sprintf("failed to create application: %s", errMsg))
 	}
 
 	// This really shouldn't have to be here, but after the task to create an
