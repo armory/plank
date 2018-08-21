@@ -19,7 +19,7 @@ func (s *Service) Create(a Application) (Application, error) {
 	}
 	logrus.Infof("Task creating application: '%s'", ref.Ref)
 	task, err := s.pollTaskStatus(ref.Ref)
-	if  err != nil || task.Status == "TERMINAL"  {
+	if err != nil || task.Status == "TERMINAL" {
 		var errMsg string
 		if err != nil {
 			errMsg = err.Error()
