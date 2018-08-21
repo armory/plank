@@ -1,4 +1,7 @@
+// +build integration
+
 package applications
+
 
 import (
 	"github.com/armory/plank/client"
