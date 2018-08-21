@@ -67,11 +67,3 @@ func Front50URL(url string) Option {
 		return nil
 	}
 }
-
-// Set
-func Log(url string) Option {
-	return func(s *Service) error {
-		s.orcaURL = url
-		return nil
-	}
-}
