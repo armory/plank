@@ -5,15 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"math"
 	"net/http"
 	"time"
-	"io/ioutil"
 )
 
 // Client for working with API servers that accept and return JSON payloads.
 type Client struct {
-	baseURL        string
 	http           *http.Client
 	retryIncrement time.Duration
 	maxRetry       int
@@ -29,55 +28,25 @@ const (
 // Option for configuring a new Client.
 type Option func(*Client) error
 
-// New constructs a Client using functional based option arguements.
-//
-// You can read more about the merits of this approach here:
-//   https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis
-// and here:
-//   https://github.com/tmrts/go-patterns/blob/master/idiom/functional-options.md
-func New(options ...Option) (*Client, error) {
+// New constructs a Client using the given http.Client-compatible client.
+// Pass nil if you want to just use the default http.Client structure.
+func New(httpClient *http.Client) (*Client, error) {
+	if httpClient == nil {
+		httpClient = &http.Client{}
+	}
 	c := &Client{
-		http:           &http.Client{},
+		http:           httpClient,
 		retryIncrement: 100,
 		maxRetry:       20,
-	}
-	for _, option := range options {
-		err := option(c)
-		if err != nil {
-			return nil, err
-		}
 	}
 	return c, nil
 }
 
-// MaxRetry set to a number.
-func MaxRetry(num int) Option {
-	return func(c *Client) error {
-		c.maxRetry = num
-		return nil
-	}
-}
-
-// BaseURL for the client to use.
-func BaseURL(address string) Option {
-	return func(c *Client) error {
-		if len(address) == 0 {
-			return errors.New("baseUrl can not be empty")
-		}
-		c.baseURL = address
-		if c.baseURL[len(c.baseURL)-1] == '/' {
-			c.baseURL = c.baseURL[:len(c.baseURL)-1]
-		}
-		// TODO: validation
-		return nil
-	}
-}
-
 // Get a JSON payload from the URL then decode it into the 'dest' arguement.
-func (c *Client) Get(path string, dest interface{}) error {
+func (c *Client) Get(url string, dest interface{}) error {
 	var reterr error
 	for i := 0; i <= c.maxRetry; i++ {
-		resp, err := c.http.Get(c.url(path))
+		resp, err := c.http.Get(url)
 		if resp == nil {
 			reterr = errors.New("empty response")
 		}
@@ -97,14 +66,14 @@ func (c *Client) Get(path string, dest interface{}) error {
 }
 
 // Post a JSON payload from the URL then decode it into the 'dest' arguement.
-func (c *Client) Post(path string, contentType ContentType, body interface{}, dest interface{}) error {
+func (c *Client) Post(url string, contentType ContentType, body interface{}, dest interface{}) error {
 	var err error
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
 		return fmt.Errorf("could not post - body could not be marshaled to json - %v", err)
 	}
 	for i := 0; i <= c.maxRetry; i++ {
-		resp, err := c.http.Post(c.url(path), string(contentType), bytes.NewBuffer(jsonBody))
+		resp, err := c.http.Post(url, string(contentType), bytes.NewBuffer(jsonBody))
 		if resp == nil {
 			err = errors.New("empty response")
 		}
@@ -122,7 +91,6 @@ func (c *Client) Post(path string, contentType ContentType, body interface{}, de
 				}
 				return nil
 			}
-			continue // something went funky, let's try again
 		}
 
 		// exponential back-off
@@ -130,11 +98,4 @@ func (c *Client) Post(path string, contentType ContentType, body interface{}, de
 		time.Sleep(interval)
 	}
 	return err
-}
-
-func (c *Client) url(path string) string {
-	if c.baseURL != "" {
-		return c.baseURL + path
-	}
-	return path
 }
