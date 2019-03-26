@@ -1,4 +1,4 @@
-package client
+package plank
 
 import (
 	"bytes"
@@ -16,6 +16,7 @@ type Client struct {
 	http           *http.Client
 	retryIncrement time.Duration
 	maxRetry       int
+	URLs           map[string]string
 }
 
 type ContentType string
@@ -25,8 +26,11 @@ const (
 	ApplicationContextJson ContentType = "application/context+json"
 )
 
-// Option for configuring a new Client.
-type Option func(*Client) error
+// DefaultURLs
+var DefaultURLs = map[string]string{
+	"orca":    "http://armory-orca:8083",
+	"front50": "http://armory-front50:8080",
+}
 
 // New constructs a Client using the given http.Client-compatible client.
 // Pass nil if you want to just use the default http.Client structure.
@@ -38,6 +42,13 @@ func New(httpClient *http.Client) (*Client, error) {
 		http:           httpClient,
 		retryIncrement: 100,
 		maxRetry:       20,
+		URLs:           make(map[string]string),
+	}
+	// Have to manually copy the DefaultURLs map because otherwise any changes
+	// made to this copy will modify the global.  I can't believe I have to
+	// to do this in this day and age...
+	for k, v := range DefaultURLs {
+		c.URLs[k] = v
 	}
 	return c, nil
 }

@@ -1,24 +1,34 @@
-package applications
+package plank
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
-	"github.com/armory/plank/client"
-	"github.com/sirupsen/logrus"
 )
 
+// Application as returned from the Spinnaker API.
+type Application struct {
+	Name  string `json:"name" mapstructure:"name"`
+	Email string `json:"email" mapstructure:"email"`
+}
+
+// Get returns the Application data struct for the
+// given application name.
+func (c *Client) GetApplication(name string, app *Application) error {
+	err := c.Get(c.URLs["front50"]+"/v2/applications/"+name, app)
+	return err
+}
+
 // Create an application.
-func (s *Service) Create(a Application) (Application, error) {
+func (c *Client) CreateApplication(a *Application) error {
 	payload := newAppCreationRequest(a)
 	var ref taskRefResponse
-	err := s.client.Post(s.orcaURL+"/ops", client.ApplicationContextJson, payload, &ref)
+	err := c.Post(c.URLs["orca"]+"/ops", ApplicationContextJson, payload, &ref)
 	if err != nil {
-		return Application{}, fmt.Errorf("could not create application - %v", err)
+		return fmt.Errorf("could not create application - %v", err)
 	}
-	logrus.Infof("Task creating application: '%s'", ref.Ref)
-	task, err := s.pollTaskStatus(ref.Ref)
+	task, err := c.pollTaskStatus(ref.Ref)
 	if err != nil || task.Status == "TERMINAL" {
 		var errMsg string
 		if err != nil {
@@ -26,7 +36,7 @@ func (s *Service) Create(a Application) (Application, error) {
 		} else {
 			errMsg = "received status TERMINAL"
 		}
-		return Application{}, errors.New(fmt.Sprintf("failed to create application: %s", errMsg))
+		return errors.New(fmt.Sprintf("failed to create application: %s", errMsg))
 	}
 
 	// This really shouldn't have to be here, but after the task to create an
@@ -34,18 +44,8 @@ func (s *Service) Create(a Application) (Application, error) {
 	// after doing the create, and getting back a completion, we still need
 	// to poll till we find the app in order to make sure future operations will
 	// succeed.
-	err = s.pollAppConfig(a.Name)
-	return a, err
-}
-
-type taskRefResponse struct {
-	Ref string `json:"ref"`
-}
-
-type executionResponse struct {
-	ID      string `json:"id"`
-	Status  string `json:"status"`
-	EndTime int    `json:"endTime"`
+	err = c.pollAppConfig(a.Name)
+	return err
 }
 
 // todo: replace late night shortcut to not have to make all the structs.
@@ -63,24 +63,36 @@ const createAppTmpl = `{
 	]
 }`
 
-func newAppCreationRequest(a Application) map[string]interface{} {
+func newAppCreationRequest(a *Application) map[string]interface{} {
 	j := fmt.Sprintf(createAppTmpl, a.Name, a.Name, a.Email, a.Name)
 	out := map[string]interface{}{}
 	json.Unmarshal([]byte(j), &out)
 	return out
 }
 
-func (s *Service) pollTaskStatus(refURL string) (executionResponse, error) {
+// TODO:  All this task-based stuff should be pulled out into tasks.go and
+// made re-usable.
+type taskRefResponse struct {
+	Ref string `json:"ref"`
+}
+
+type executionResponse struct {
+	ID      string `json:"id"`
+	Status  string `json:"status"`
+	EndTime int    `json:"endTime"`
+}
+
+func (c *Client) pollTaskStatus(refURL string) (executionResponse, error) {
 	if refURL == "" {
 		return executionResponse{}, errors.New("no taskRef provided to follow")
 	}
-	timer := time.NewTimer(s.pollTime)
+	timer := time.NewTimer(c.retryIncrement)
 	t := time.NewTicker(1 * time.Second)
 	defer t.Stop()
 
 	for range t.C {
 		var body executionResponse
-		s.client.Get(s.orcaURL+refURL, &body)
+		c.Get(c.URLs["orca"]+refURL, &body)
 		if body.EndTime > 0 {
 			return body, nil
 		}
@@ -93,18 +105,19 @@ func (s *Service) pollTaskStatus(refURL string) (executionResponse, error) {
 	return executionResponse{}, errors.New("exited poll loop before completion")
 }
 
-func (s *Service) getTask(refURL string) (executionResponse, error) {
+func (c *Client) getTask(refURL string) (executionResponse, error) {
 	var body executionResponse
-	err := s.client.Get(s.orcaURL+refURL, &body)
+	err := c.Get(c.URLs["orca"]+refURL, &body)
 	return body, err
 }
 
-func (s *Service) pollAppConfig(app string) error {
-	timer := time.NewTimer(s.pollTime)
+func (c *Client) pollAppConfig(appName string) error {
+	timer := time.NewTimer(c.retryIncrement)
 	t := time.NewTicker(5 * time.Second)
 	defer t.Stop()
+	var app Application
 	for range t.C {
-		_, err := s.Get(app)
+		err := c.GetApplication(appName, &app)
 		if err == nil {
 			return nil
 		}

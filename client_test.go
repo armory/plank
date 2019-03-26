@@ -1,4 +1,4 @@
-package client
+package plank
 
 import (
 	"bytes"
@@ -46,4 +46,11 @@ func TestDefaultClient(t *testing.T) {
 	client, err := New(nil)
 	assert.Nil(t, err)
 	assert.NotNil(t, client)
+}
+
+func TestURLMapCopy(t *testing.T) {
+	client, err := New(nil)
+	assert.Nil(t, err)
+	client.URLs["orca"] = "foobar"
+	assert.NotEqual(t, DefaultURLs["orca"], "foobar")
 }
