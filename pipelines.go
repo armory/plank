@@ -60,8 +60,8 @@ type PipelineRef struct {
 	Ref string `json:"ref"`
 }
 
-// Execute a pipeline by application name and pipeline name.
-func (c *Client) Execute(application, pipelineName string) (*PipelineRef, error) {
+// Execute a pipeline by application and pipeline.
+func (c *Client) Execute(application, pipeline string) (*PipelineRef, error) {
 	e := pipelineExecution{
 		Enabled: true,
 		Type:    "manual",
@@ -70,7 +70,7 @@ func (c *Client) Execute(application, pipelineName string) (*PipelineRef, error)
 	}
 	var ref PipelineRef
 	if err := c.Post(
-		fmt.Sprintf("%s/%s/%s", c.pipelinesURL(), application, pipelineName),
+		fmt.Sprintf("%s/%s/%s", c.pipelinesURL(), application, pipeline),
 		ApplicationJson, e, &ref); err != nil {
 		return nil, err
 	}
