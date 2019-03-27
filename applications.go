@@ -1,16 +1,23 @@
 package plank
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
 )
 
+type DataSourcesType struct {
+	Enabled  []string `json:"enabled" mapstructure:"enabled"`
+	Disabled []string `json:"disabled" mapstructure:"disabled"`
+}
+
 // Application as returned from the Spinnaker API.
 type Application struct {
-	Name  string `json:"name" mapstructure:"name"`
-	Email string `json:"email" mapstructure:"email"`
+	Name        string          `json:"name" mapstructure:"name"`
+	Email       string          `json:"email" mapstructure:"email"`
+	Description string          `json:"description,omitempty" mapstructure:"description"`
+	User        string          `json:"user,omitempty" mapstructure:"user"`
+	DataSources DataSourcesType `json:"dataSources,omitempty" mapstructure:"dataSources"`
 }
 
 // Get returns the Application data struct for the
@@ -25,13 +32,11 @@ func (c *Client) GetApplication(name string) (*Application, error) {
 
 // Create an application.
 func (c *Client) CreateApplication(a *Application) error {
-	payload := newAppCreationRequest(a)
-	var ref taskRefResponse
-	err := c.Post(c.URLs["orca"]+"/ops", ApplicationContextJson, payload, &ref)
+	ref, err := c.CreateTask(a.Name, fmt.Sprintf("Create Application: %s", a.Name), a)
 	if err != nil {
 		return fmt.Errorf("could not create application - %v", err)
 	}
-	task, err := c.pollTaskStatus(ref.Ref)
+	task, err := c.PollTaskStatus(ref.Ref)
 	if err != nil || task.Status == "TERMINAL" {
 		var errMsg string
 		if err != nil {
@@ -49,69 +54,6 @@ func (c *Client) CreateApplication(a *Application) error {
 	// succeed.
 	err = c.pollAppConfig(a.Name)
 	return err
-}
-
-// todo: replace late night shortcut to not have to make all the structs.
-const createAppTmpl = `{
-	"application": "%s",
-	"description": "Create Application: %s",
-	"job" :[
-		{
-			"application": {
-				"email": "%s",
-				"name": "%s"
-			},
-			"type": "createApplication"
-		}
-	]
-}`
-
-func newAppCreationRequest(a *Application) map[string]interface{} {
-	j := fmt.Sprintf(createAppTmpl, a.Name, a.Name, a.Email, a.Name)
-	out := map[string]interface{}{}
-	json.Unmarshal([]byte(j), &out)
-	return out
-}
-
-// TODO:  All this task-based stuff should be pulled out into tasks.go and
-// made re-usable.
-type taskRefResponse struct {
-	Ref string `json:"ref"`
-}
-
-type executionResponse struct {
-	ID      string `json:"id"`
-	Status  string `json:"status"`
-	EndTime int    `json:"endTime"`
-}
-
-func (c *Client) pollTaskStatus(refURL string) (executionResponse, error) {
-	if refURL == "" {
-		return executionResponse{}, errors.New("no taskRef provided to follow")
-	}
-	timer := time.NewTimer(c.retryIncrement)
-	t := time.NewTicker(1 * time.Second)
-	defer t.Stop()
-
-	for range t.C {
-		var body executionResponse
-		c.Get(c.URLs["orca"]+refURL, &body)
-		if body.EndTime > 0 {
-			return body, nil
-		}
-		select {
-		case <-timer.C:
-			return executionResponse{}, errors.New("timed out waiting for task to complete")
-		default:
-		}
-	}
-	return executionResponse{}, errors.New("exited poll loop before completion")
-}
-
-func (c *Client) getTask(refURL string) (executionResponse, error) {
-	var body executionResponse
-	err := c.Get(c.URLs["orca"]+refURL, &body)
-	return body, err
 }
 
 func (c *Client) pollAppConfig(appName string) error {
