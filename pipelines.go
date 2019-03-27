@@ -48,7 +48,7 @@ func (c *Client) GetPipeline(app, pipeline string) (*Pipeline, error) {
 	if err := c.GetWithRetry(c.pipelinesURL()+"/"+app+"/"+pipeline, &p); err != nil {
 		return nil, err
 	}
-	return &p, err
+	return &p, nil
 }
 
 // Get returns an array of all the Spinnaker pipelines
