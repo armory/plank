@@ -19,36 +19,42 @@ type Authorization struct {
 	Authorizations []string `json:"authorizations"`
 }
 
+// IsAdmin returns true if the user has admin permissions
+func (u *User) IsAdmin() bool {
+	return u.Admin == true
+}
+
+// HasAppWriteAccess returns true if user has write access to given app.
+func (u *User) HasAppWriteAccess(app string) bool {
+	for _, a := range u.Applications {
+		if a.Name != app {
+			continue
+		}
+		for _, x := range a.Authorizations {
+			if strings.ToLower(x) == "write" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // Admin returns whether or not a user is an admin.
 func (c *Client) IsAdmin(username string) (bool, error) {
 	u, err := c.GetUser(username)
 	if err != nil {
 		return false, err
 	}
-	return u.Admin == true, nil
+	return u.IsAdmin(), nil
 }
 
-// WriteAccess returns whether or not a user can write pipelines/configs/etc. for an app.
-func (c *Client) HasWriteAccess(username, app string) (bool, error) {
+// HasAppWriteAccess returns whether or not a user can write pipelines/configs/etc. for an app.
+func (c *Client) HasAppWriteAccess(username, app string) (bool, error) {
 	u, err := c.GetUser(username)
 	if err != nil {
 		return false, err
 	}
-	for _, a := range u.Applications {
-		if a.Name == app && containsLowerCase(a.Authorizations, "WRITE") {
-			return true, nil
-		}
-	}
-	return false, nil
-}
-
-func containsLowerCase(a []string, s string) bool {
-	for _, v := range a {
-		if strings.ToLower(v) == strings.ToLower(s) {
-			return true
-		}
-	}
-	return false
+	return u.HasAppWriteAccess(app), nil
 }
 
 // GetUser gets a user by name.

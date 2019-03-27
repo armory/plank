@@ -30,7 +30,7 @@ const (
 var DefaultURLs = map[string]string{
 	"orca":    "http://armory-orca:8083",
 	"front50": "http://armory-front50:8080",
-	"fiat":    "http///armory-fiat:7003",
+	"fiat":    "http://armory-fiat:7003",
 }
 
 // New constructs a Client using the given http.Client-compatible client.

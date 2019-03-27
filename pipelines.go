@@ -25,6 +25,7 @@ type Pipeline struct {
 	UpdateTs             string                   `json:"updateTs"`
 }
 
+// utility to return the base URL for all pipelines API calls
 func (c *Client) pipelinesURL() string {
 	return c.URLs["front50"] + "/pipelines"
 }
