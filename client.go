@@ -35,7 +35,7 @@ var DefaultURLs = map[string]string{
 
 // New constructs a Client using the given http.Client-compatible client.
 // Pass nil if you want to just use the default http.Client structure.
-func New(httpClient *http.Client) (*Client, error) {
+func New(httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = &http.Client{}
 	}
@@ -51,7 +51,7 @@ func New(httpClient *http.Client) (*Client, error) {
 	for k, v := range DefaultURLs {
 		c.URLs[k] = v
 	}
-	return c, nil
+	return c
 }
 
 type RequestFunction func() error
