@@ -42,6 +42,15 @@ func (c *Client) pipelinesURL() string {
 	return c.URLs["front50"] + "/pipelines"
 }
 
+// GetPipeline by app name and pipeline name.
+func (c *Client) GetPipeline(app, pipeline string) (*Pipeline, error) {
+	var p Pipeline
+	if err := c.GetWithRetry(c.pipelinesURL()+"/"+app+"/"+pipeline, &p); err != nil {
+		return nil, err
+	}
+	return &p, err
+}
+
 // Get returns an array of all the Spinnaker pipelines
 // configured for app
 func (c *Client) GetPipelines(app string) ([]Pipeline, error) {
@@ -65,6 +74,11 @@ func (c *Client) UpsertPipeline(p Pipeline) error {
 func (c *Client) DeletePipeline(p Pipeline) error {
 	return c.DeleteWithRetry(
 		fmt.Sprintf("%s/%s/%s", c.pipelinesURL(), p.Application, p.Name))
+}
+
+func (c *Client) DeletePipelineByName(app, pipeline string) error {
+	return c.DeleteWithRetry(
+		fmt.Sprintf("%s/%s/%s", c.pipelinesURL(), app, pipeline))
 }
 
 type pipelineExecution struct {
