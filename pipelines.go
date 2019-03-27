@@ -1,4 +1,4 @@
-package pipelines
+package plank
 
 import (
 	"fmt"
@@ -25,14 +25,54 @@ type Pipeline struct {
 	UpdateTs             string                   `json:"updateTs"`
 }
 
+func (c *Client) pipelinesURL() string {
+	return c.URLs["front50"] + "/pipelines"
+}
+
 // Get returns an array of all the Spinnaker pipelines
 // configured for app
-func (s *Service) Get(app string) ([]Pipeline, error) {
-	path := fmt.Sprintf(s.front50URL+"/pipelines/%s", app)
+func (c *Client) GetPipelines(app string) ([]Pipeline, error) {
 	var pipelines []Pipeline
-	err := s.client.Get(path, &pipelines)
-	if err != nil {
+	if err := c.Get(c.pipelinesURL()+"/"+app, &pipelines); err != nil {
 		return nil, fmt.Errorf("could not get pipelines for %s - %v", app, err)
 	}
 	return pipelines, nil
+}
+
+// CreatePipeline creates a pipeline defined in the struct argument.
+func (c *Client) CreatePipeline(p Pipeline) error {
+	var unused interface{}
+	if err := c.Post(c.pipelinesURL(), ApplicationJson, p, &unused); err != nil {
+		return fmt.Errorf("could not create pipeline - %v", err)
+	}
+	return nil
+}
+
+type pipelineExecution struct {
+	Enabled bool   `json:"enabled"`
+	Type    string `json:"type"`
+	DryRun  bool   `json:"dryRun"`
+	User    string `json:"user"`
+}
+
+type PipelineRef struct {
+	// Ref is the path the the execution. Use it to get status updates.
+	Ref string `json:"ref"`
+}
+
+// Execute a pipeline by application name and pipeline name.
+func (c *Client) Execute(application, pipelineName string) (*PipelineRef, error) {
+	e := pipelineExecution{
+		Enabled: true,
+		Type:    "manual",
+		DryRun:  false,
+		User:    "anonymous",
+	}
+	var ref PipelineRef
+	if err := c.Post(
+		fmt.Sprintf("%s/%s/%s", c.pipelinesURL(), application, pipelineName),
+		ApplicationJson, e, &ref); err != nil {
+		return nil, err
+	}
+	return &ref, nil
 }

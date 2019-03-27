@@ -15,9 +15,12 @@ type Application struct {
 
 // Get returns the Application data struct for the
 // given application name.
-func (c *Client) GetApplication(name string, app *Application) error {
-	err := c.Get(c.URLs["front50"]+"/v2/applications/"+name, app)
-	return err
+func (c *Client) GetApplication(name string) (*Application, error) {
+	var app Application
+	if err := c.Get(c.URLs["front50"]+"/v2/applications/"+name, &app); err != nil {
+		return nil, err
+	}
+	return &app, nil
 }
 
 // Create an application.
@@ -115,9 +118,8 @@ func (c *Client) pollAppConfig(appName string) error {
 	timer := time.NewTimer(c.retryIncrement)
 	t := time.NewTicker(5 * time.Second)
 	defer t.Stop()
-	var app Application
 	for range t.C {
-		err := c.GetApplication(appName, &app)
+		_, err := c.GetApplication(appName)
 		if err == nil {
 			return nil
 		}

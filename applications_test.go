@@ -20,7 +20,7 @@ func TestGetApplication(t *testing.T) {
 
 	c, err := New(client)
 	assert.Nil(t, err)
-	val := Application{}
-	err = c.GetApplication("foo", &val)
+	val, err := c.GetApplication("foo")
+	assert.Nil(t, val)
 	assert.NotNil(t, err) // bad payload means an error was returned.
 }
