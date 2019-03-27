@@ -23,6 +23,18 @@ type Pipeline struct {
 	LastModifiedBy       string                   `json:"lastModifiedBy"`
 	Config               interface{}              `json:"config,omitempty"`
 	UpdateTs             string                   `json:"updateTs"`
+	Locked               PipelineLockType         `json:"locked,omitempty"`
+}
+
+type PipelineLockType struct {
+	UI            bool `json:"ui"`
+	AllowUnlockUI bool `json:"allowUnlockUi"`
+}
+
+func (p *Pipeline) Lock() *Pipeline {
+	p.Locked.UI = true
+	p.Locked.AllowUnlockUI = true
+	return p
 }
 
 // utility to return the base URL for all pipelines API calls
@@ -34,19 +46,25 @@ func (c *Client) pipelinesURL() string {
 // configured for app
 func (c *Client) GetPipelines(app string) ([]Pipeline, error) {
 	var pipelines []Pipeline
-	if err := c.Get(c.pipelinesURL()+"/"+app, &pipelines); err != nil {
+	if err := c.GetWithRetry(c.pipelinesURL()+"/"+app, &pipelines); err != nil {
 		return nil, fmt.Errorf("could not get pipelines for %s - %v", app, err)
 	}
 	return pipelines, nil
 }
 
-// CreatePipeline creates a pipeline defined in the struct argument.
-func (c *Client) CreatePipeline(p Pipeline) error {
+// UpsertPipeline creates/updates a pipeline defined in the struct argument.
+func (c *Client) UpsertPipeline(p Pipeline) error {
 	var unused interface{}
-	if err := c.Post(c.pipelinesURL(), ApplicationJson, p, &unused); err != nil {
+	if err := c.PostWithRetry(c.pipelinesURL(), ApplicationJson, p, &unused); err != nil {
 		return fmt.Errorf("could not create pipeline - %v", err)
 	}
 	return nil
+}
+
+// DeletePipeline does what it says.
+func (c *Client) DeletePipeline(p Pipeline) error {
+	return c.DeleteWithRetry(
+		fmt.Sprintf("%s/%s/%s", c.pipelinesURL(), p.Application, p.Name))
 }
 
 type pipelineExecution struct {
@@ -70,7 +88,7 @@ func (c *Client) Execute(application, pipeline string) (*PipelineRef, error) {
 		User:    "anonymous",
 	}
 	var ref PipelineRef
-	if err := c.Post(
+	if err := c.PostWithRetry(
 		fmt.Sprintf("%s/%s/%s", c.pipelinesURL(), application, pipeline),
 		ApplicationJson, e, &ref); err != nil {
 		return nil, err

@@ -20,7 +20,7 @@ type Application struct {
 	DataSources DataSourcesType `json:"dataSources,omitempty" mapstructure:"dataSources"`
 }
 
-// Get returns the Application data struct for the
+// GetApplication returns the Application data struct for the
 // given application name.
 func (c *Client) GetApplication(name string) (*Application, error) {
 	var app Application
@@ -30,7 +30,16 @@ func (c *Client) GetApplication(name string) (*Application, error) {
 	return &app, nil
 }
 
-// Create an application.
+// GetApplications returns all applications (you can see, at least)
+func (c *Client) GetApplications() (*[]Application, error) {
+	var apps []Application
+	if err := c.Get(c.URLs["front50"]+"/v2/applications", &apps); err != nil {
+		return nil, err
+	}
+	return &apps, nil
+}
+
+// CreateApplication does what it says.
 func (c *Client) CreateApplication(a *Application) error {
 	ref, err := c.CreateTask(a.Name, fmt.Sprintf("Create Application: %s", a.Name), a)
 	if err != nil {
@@ -56,6 +65,8 @@ func (c *Client) CreateApplication(a *Application) error {
 	return err
 }
 
+// pollAppConfig isn't exposed because not sure it's worth exposing.  Just
+// call GetApplication() if you're expecting it to be there.
 func (c *Client) pollAppConfig(appName string) error {
 	timer := time.NewTimer(c.retryIncrement)
 	t := time.NewTicker(5 * time.Second)
