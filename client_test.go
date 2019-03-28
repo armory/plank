@@ -34,7 +34,7 @@ func TestGet(t *testing.T) {
 		}
 	})
 
-	c, err := New(client)
+	c := New(client)
 	assert.Nil(t, err)
 	val := map[string]string{}
 	err = c.Get("/", &val)
@@ -43,13 +43,13 @@ func TestGet(t *testing.T) {
 }
 
 func TestDefaultClient(t *testing.T) {
-	client, err := New(nil)
+	client := New(nil)
 	assert.Nil(t, err)
 	assert.NotNil(t, client)
 }
 
 func TestURLMapCopy(t *testing.T) {
-	client, err := New(nil)
+	client := New(nil)
 	assert.Nil(t, err)
 	client.URLs["orca"] = "foobar"
 	assert.NotEqual(t, DefaultURLs["orca"], "foobar")

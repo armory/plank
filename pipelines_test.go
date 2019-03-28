@@ -18,7 +18,7 @@ func TestGetPipelines(t *testing.T) {
 		}
 	})
 
-	c, err := New(client)
+	c := New(client)
 	assert.Nil(t, err)
 	val, err := c.GetPipelines("myapp")
 	assert.Nil(t, err)

@@ -19,7 +19,7 @@ func TestGetApplication(t *testing.T) {
 		}
 	})
 
-	c, err := New(client)
+	c := New(client)
 	assert.Nil(t, err)
 	app, err := c.GetApplication("foo")
 	assert.Nil(t, err)
@@ -52,7 +52,7 @@ func TestCreateApp(t *testing.T) {
 		}
 	})
 
-	c, err := New(client)
+	c := New(client)
 	assert.Nil(t, err)
 	err = c.CreateApplication(&Application{Name: "foo", Email: "Bar"})
 	assert.Nil(t, err)
