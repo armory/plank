@@ -12,3 +12,6 @@
 *.out
 
 vendor/
+
+# vim temp files
+*.swp 
