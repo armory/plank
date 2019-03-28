@@ -20,7 +20,6 @@ func TestGetUser(t *testing.T) {
 	})
 
 	c := New(client)
-	assert.Nil(t, err)
 	user, err := c.GetUser("foo")
 	assert.Nil(t, err)
 	assert.Equal(t, user.Name, "testapp")

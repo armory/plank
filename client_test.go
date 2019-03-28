@@ -35,22 +35,21 @@ func TestGet(t *testing.T) {
 	})
 
 	c := New(client)
-	assert.Nil(t, err)
+	assert.NotNil(t, c)
 	val := map[string]string{}
-	err = c.Get("/", &val)
+	err := c.Get("/", &val)
 	assert.Nil(t, err)
 	assert.Equal(t, "value1", val["key1"])
 }
 
 func TestDefaultClient(t *testing.T) {
 	client := New(nil)
-	assert.Nil(t, err)
 	assert.NotNil(t, client)
 }
 
 func TestURLMapCopy(t *testing.T) {
 	client := New(nil)
-	assert.Nil(t, err)
+	assert.NotNil(t, client)
 	client.URLs["orca"] = "foobar"
 	assert.NotEqual(t, DefaultURLs["orca"], "foobar")
 }
