@@ -59,6 +59,18 @@ func (mr *MockPlankClientMockRecorder) GetApplications() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetApplications", reflect.TypeOf((*MockPlankClient)(nil).GetApplications))
 }
 
+// CreateApplication mocks base method
+func (m *MockPlankClient) CreateApplication(arg0 *plank.Application) error {
+	ret := m.ctrl.Call(m, "CreateApplication", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateApplication indicates an expected call of CreateApplication
+func (mr *MockPlankClientMockRecorder) CreateApplication(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateApplication", reflect.TypeOf((*MockPlankClient)(nil).CreateApplication), arg0)
+}
+
 // IsAdmin mocks base method
 func (m *MockPlankClient) IsAdmin(arg0 string) (bool, error) {
 	ret := m.ctrl.Call(m, "IsAdmin", arg0)

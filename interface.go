@@ -4,6 +4,7 @@ type PlankClient interface {
 	// Applications
 	GetApplication(string) (*Application, error)
 	GetApplications() (*[]Application, error)
+	CreateApplication(*Application) error
 
 	// Permissions
 	IsAdmin(string) (bool, error)
