@@ -39,9 +39,15 @@ func (c *Client) GetApplications() (*[]Application, error) {
 	return &apps, nil
 }
 
+type createApplicationTask struct {
+	Application Application `json:"application" mapstructure:"application"`
+	Type        string      `json:"type" mapstructure:"type"`
+}
+
 // CreateApplication does what it says.
 func (c *Client) CreateApplication(a *Application) error {
-	ref, err := c.CreateTask(a.Name, fmt.Sprintf("Create Application: %s", a.Name), a)
+	payload := createApplicationTask{Application: *a, Type: "createApplication"}
+	ref, err := c.CreateTask(a.Name, fmt.Sprintf("Create Application: %s", a.Name), payload)
 	if err != nil {
 		return fmt.Errorf("could not create application - %v", err)
 	}
