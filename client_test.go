@@ -62,6 +62,12 @@ func TestDefaultClient(t *testing.T) {
 	assert.NotNil(t, client)
 }
 
+func TestAuthClient(t *testing.T) {
+	client := NewAuthenticated("foo", nil)
+	assert.NotNil(t, client)
+	assert.Equal(t, client.FiatUser, "foo")
+}
+
 func TestURLMapCopy(t *testing.T) {
 	client := New(nil)
 	assert.NotNil(t, client)
