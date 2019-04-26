@@ -57,7 +57,7 @@ func New(httpClient *http.Client) *Client {
 	}
 	c := &Client{
 		http:           httpClient,
-		retryIncrement: 4 * time.Minute,
+		retryIncrement: 1 * time.Second,
 		maxRetry:       20,
 		URLs:           make(map[string]string),
 	}

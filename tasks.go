@@ -46,8 +46,8 @@ func (c *Client) PollTaskStatus(refURL string) (*ExecutionStatusResponse, error)
 	if refURL == "" {
 		return nil, errors.New("no taskRef provided to follow")
 	}
-	timer := time.NewTimer(c.retryIncrement)
-	t := time.NewTicker(1 * time.Second)
+	timer := time.NewTimer(4 * time.Minute)
+	t := time.NewTicker(c.retryIncrement)
 	defer t.Stop()
 
 	for range t.C {
