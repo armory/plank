@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"testing"
+	"time"
 )
 
 type RoundTripFunc func(req *http.Request) *http.Response
@@ -49,7 +50,7 @@ func TestGet(t *testing.T) {
 		}
 	})
 
-	c := New(client)
+	c := New(WithClient(client))
 	assert.NotNil(t, c)
 	val := map[string]string{}
 	err := c.Get("/", &val)
@@ -58,19 +59,33 @@ func TestGet(t *testing.T) {
 }
 
 func TestDefaultClient(t *testing.T) {
-	client := New(nil)
+	client := New()
 	assert.NotNil(t, client)
-}
-
-func TestAuthClient(t *testing.T) {
-	client := NewAuthenticated("foo", nil)
-	assert.NotNil(t, client)
-	assert.Equal(t, client.FiatUser, "foo")
 }
 
 func TestURLMapCopy(t *testing.T) {
-	client := New(nil)
+	client := New()
 	assert.NotNil(t, client)
 	client.URLs["orca"] = "foobar"
 	assert.NotEqual(t, DefaultURLs["orca"], "foobar")
+}
+
+func TestOptions(t *testing.T) {
+	test_transport := New(WithTransport(&http.Transport{MaxIdleConns:5}))
+	assert.Equal(t, &http.Transport{MaxIdleConns: 5}, test_transport.http.Transport)
+
+	test_client := New(WithClient(&http.Client{}))
+	assert.Equal(t, &http.Client{}, test_client.http)
+
+	test_retry_inc := New(WithRetryIncrement(5 * time.Second))
+	assert.Equal(t, 5 * time.Second, test_retry_inc.retryIncrement)
+
+	test_fiat := New(WithFiatUser("foo"))
+	assert.Equal(t, "foo", test_fiat.FiatUser)
+
+	test_max_retries := New(WithMaxRetries(5))
+	assert.Equal(t, 5, test_max_retries.maxRetry)
+
+	test_with_urls := New(WithURLs(map[string]string{"foo":"http://foo"}))
+	assert.Equal(t, map[string]string{"foo":"http://foo"}, test_with_urls.URLs)
 }
