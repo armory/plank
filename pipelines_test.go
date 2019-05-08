@@ -33,7 +33,7 @@ func TestGetPipelines(t *testing.T) {
 		}
 	})
 
-	c := New(client)
+	c := New(WithClient(client))
 	val, err := c.GetPipelines("myapp")
 	assert.Nil(t, err)
 	assert.Equal(t, len(val), 0) // Should get 0 pipelines back.

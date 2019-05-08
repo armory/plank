@@ -34,7 +34,7 @@ func TestGetUser(t *testing.T) {
 		}
 	})
 
-	c := New(client)
+	c := New(WithClient(client))
 	user, err := c.GetUser("foo")
 	assert.Nil(t, err)
 	assert.Equal(t, user.Name, "testapp")
