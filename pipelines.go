@@ -60,7 +60,7 @@ func (c *Client) pipelinesURL() string {
 // GetPipeline by app name and pipeline name.
 func (c *Client) GetPipeline(app, pipeline string) (*Pipeline, error) {
 	var p Pipeline
-	if err := c.GetWithRetry(c.pipelinesURL()+"/"+app+"/"+pipeline, &p); err != nil {
+	if err := c.GetWithRetry(c.URLs["front50"] + "/v2/applications/" + app + "/pipelineConfigs/" + pipeline, &p); err != nil {
 		return nil, err
 	}
 	return &p, nil
