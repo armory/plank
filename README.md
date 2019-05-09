@@ -28,7 +28,7 @@ client := plank.New(plank.WithClient(&http.Client{}))
 
 To tune the maxiumum number of retries or set an exponential backoff value:
 ```go
-client := plank.New(WithMaxRetries(5), WithRetryIncrement(5 * time.Second))
+client := plank.New(plank.WithMaxRetries(5), plank.WithRetryIncrement(5 * time.Second))
 ```
 
 You can (or may need to) replace the base URLs for the microservices by
