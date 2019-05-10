@@ -25,7 +25,7 @@ import (
 
 func TestGetPipelines(t *testing.T) {
 	client := NewTestClient(func(req *http.Request) *http.Response {
-		assert.Equal(t, req.URL.String(), "http://armory-front50:8080/applications/myapp/pipelineConfigs")
+		assert.Equal(t, req.URL.String(), "http://armory-gate:8084/applications/myapp/pipelineConfigs")
 		return &http.Response{
 			StatusCode: 200,
 			Body:       ioutil.NopCloser(bytes.NewBufferString("[]")),
