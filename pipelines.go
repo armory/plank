@@ -22,29 +22,29 @@ import (
 // Pipeline is the structure that comes back from Spinnaker
 // representing a pipeline definition (different than an execution)
 type Pipeline struct {
-	ID                   string                   `json:"id,omitempty"`
-	Type                 string                   `json:"type,omitempty"`
-	Name                 string                   `json:"name"`
-	Application          string                   `json:"application"`
-	Description          string                   `json:"description,omitempty"`
-	ExecutionEngine      string                   `json:"executionEngine,omitempty"`
-	Parallel             bool                     `json:"parallel"`
-	LimitConcurrent      bool                     `json:"limitConcurrent"`
-	KeepWaitingPipelines bool                     `json:"keepWaitingPipelines"`
-	Stages               []map[string]interface{} `json:"stages,omitempty"`
-	Triggers             []map[string]interface{} `json:"triggers,omitempty"`
-	Parameters           []map[string]interface{} `json:"parameterConfig,omitempty"`
-	Notifications        []map[string]interface{} `json:"notifications,omitempty"`
-	ExpectedArtifacts    []map[string]interface{} `json:"expectedArtifacts,omitempty"`
-	LastModifiedBy       string                   `json:"lastModifiedBy"`
-	Config               interface{}              `json:"config,omitempty"`
-	UpdateTs             string                   `json:"updateTs"`
-	Locked               PipelineLockType         `json:"locked,omitempty"`
+	ID                   string                   `json:"id,omitempty" yaml:"id,omitempty"`
+	Type                 string                   `json:"type,omitempty" yaml:"type,omitempty"`
+	Name                 string                   `json:"name" yaml:"name"`
+	Application          string                   `json:"application" yaml:"application"`
+	Description          string                   `json:"description,omitempty" yaml:"description,omitempty"`
+	ExecutionEngine      string                   `json:"executionEngine,omitempty" yaml:"executionEngine,omitempty"`
+	Parallel             bool                     `json:"parallel" yaml:"parallel"`
+	LimitConcurrent      bool                     `json:"limitConcurrent" yaml:"limitConcurrent"`
+	KeepWaitingPipelines bool                     `json:"keepWaitingPipelines" yaml:"keepWaitingPipelines"`
+	Stages               []map[string]interface{} `json:"stages,omitempty" yaml:"stages,omitempty"`
+	Triggers             []map[string]interface{} `json:"triggers,omitempty" yaml:"triggers,omitempty"`
+	Parameters           []map[string]interface{} `json:"parameterConfig,omitempty" yaml:"parameterConfig,omitempty"`
+	Notifications        []map[string]interface{} `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	ExpectedArtifacts    []map[string]interface{} `json:"expectedArtifacts,omitempty" yaml:"expectedArtifacts,omitempty"`
+	LastModifiedBy       string                   `json:"lastModifiedBy" yaml:"lastModifiedBy"`
+	Config               interface{}              `json:"config,omitempty" yaml:"config,omitempty"`
+	UpdateTs             string                   `json:"updateTs" yaml:"updateTs"`
+	Locked               PipelineLockType         `json:"locked,omitempty" yaml:"locked,omitempty"`
 }
 
 type PipelineLockType struct {
-	UI            bool `json:"ui"`
-	AllowUnlockUI bool `json:"allowUnlockUi"`
+	UI            bool `json:"ui" yaml:"ui"`
+	AllowUnlockUI bool `json:"allowUnlockUi" yaml:"allowUnlockUi"`
 }
 
 func (p *Pipeline) Lock() *Pipeline {
@@ -95,15 +95,15 @@ func (c *Client) DeletePipelineByName(app, pipeline string) error {
 }
 
 type pipelineExecution struct {
-	Enabled bool   `json:"enabled"`
-	Type    string `json:"type"`
-	DryRun  bool   `json:"dryRun"`
-	User    string `json:"user"`
+	Enabled bool   `json:"enabled" yaml:"enabled"`
+	Type    string `json:"type" yaml:"type"`
+	DryRun  bool   `json:"dryRun" yaml:"dryRun"`
+	User    string `json:"user" yaml:"user"`
 }
 
 type PipelineRef struct {
 	// Ref is the path the the execution. Use it to get status updates.
-	Ref string `json:"ref"`
+	Ref string `json:"ref" yaml:"ref"`
 }
 
 // Execute a pipeline by application and pipeline.

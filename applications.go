@@ -22,17 +22,17 @@ import (
 )
 
 type DataSourcesType struct {
-	Enabled  []string `json:"enabled" mapstructure:"enabled"`
-	Disabled []string `json:"disabled" mapstructure:"disabled"`
+	Enabled  []string `json:"enabled" mapstructure:"enabled" yaml:"enabled"`
+	Disabled []string `json:"disabled" mapstructure:"disabled" yaml:"disabled"`
 }
 
 // Application as returned from the Spinnaker API.
 type Application struct {
-	Name        string          `json:"name" mapstructure:"name"`
-	Email       string          `json:"email" mapstructure:"email"`
-	Description string          `json:"description,omitempty" mapstructure:"description"`
-	User        string          `json:"user,omitempty" mapstructure:"user"`
-	DataSources DataSourcesType `json:"dataSources,omitempty" mapstructure:"dataSources"`
+	Name        string          `json:"name" mapstructure:"name" yaml:"name"`
+	Email       string          `json:"email" mapstructure:"email" yaml:"email"`
+	Description string          `json:"description,omitempty" mapstructure:"description" yaml:"description,omitempty"`
+	User        string          `json:"user,omitempty" mapstructure:"user" yaml:"user,omitempty"`
+	DataSources DataSourcesType `json:"dataSources,omitempty" mapstructure:"dataSources" yaml:"datasources,omitempty"`
 }
 
 // GetApplication returns the Application data struct for the
@@ -55,8 +55,8 @@ func (c *Client) GetApplications() (*[]Application, error) {
 }
 
 type createApplicationTask struct {
-	Application Application `json:"application" mapstructure:"application"`
-	Type        string      `json:"type" mapstructure:"type"`
+	Application Application `json:"application" mapstructure:"application" yaml:"application"`
+	Type        string      `json:"type" mapstructure:"type" yaml:"type"`
 }
 
 // CreateApplication does what it says.
