@@ -21,17 +21,17 @@ import (
 
 // User is returned by Fiat's /authorize endpoint.
 type User struct {
-	Name         string          `json:"name" yaml:"name"`
-	Admin        bool            `json:"admin" yaml:"admin"`
-	Accounts     []Authorization `json:"accounts" yaml:"accounts"`
-	Applications []Authorization `json:"applications" yaml:"applications"`
+	Name         string          `json:"name" yaml:"name" hcl:"name"`
+	Admin        bool            `json:"admin" yaml:"admin" hcl:"admin"`
+	Accounts     []Authorization `json:"accounts" yaml:"accounts" hcl:"accounts"`
+	Applications []Authorization `json:"applications" yaml:"applications" hcl:"applications"`
 }
 
 // Authorization describes permissinos for an account or application.
 type Authorization struct {
-	Name string `json:"name" yaml:"name"`
+	Name string `json:"name" yaml:"name" hcl:"name"`
 	// Authorizations can be 'READ' 'WRITE'
-	Authorizations []string `json:"authorizations" yaml:"authorizations"`
+	Authorizations []string `json:"authorizations" yaml:"authorizations" hcl:"authorizations"`
 }
 
 // IsAdmin returns true if the user has admin permissions
