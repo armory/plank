@@ -97,5 +97,5 @@ func (c *Client) ResyncFiat() error {
 	}
 
 	var unused interface{}
-	return c.Post(c.URLs["fiat"]+"/all", ApplicationJson, nil, &unused)
+	return c.Post(c.URLs["fiat"]+"/forceRefresh/all", ApplicationJson, nil, &unused)
 }
