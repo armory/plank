@@ -194,7 +194,7 @@ type FailedResponse struct {
 }
 
 func (e *FailedResponse) Error() string {
-	return fmt.Sprintf("%v: %v", e.StatusCode, e.Response)
+	return fmt.Sprintf("%v: %s", e.StatusCode, string(e.Response))
 }
 
 // Post a JSON payload from the URL then decode it into the 'dest' arguement.
