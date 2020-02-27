@@ -27,6 +27,16 @@ import (
 	"time"
 )
 
+const (
+	// SpinFiatUserHeader is the header name used for representing users.
+	SpinFiatUserHeader string = "X-Spinnaker-User"
+	// SpinFiatAccountHeader is the header name used for representing accounts.
+	SpinFiatAccountHeader string = "X-Spinnaker-Accounts"
+
+	ApplicationJson        ContentType = "application/json"
+	ApplicationContextJson ContentType = "application/context+json"
+)
+
 type ErrUnsupportedStatusCode struct {
 	Code int
 }
@@ -87,11 +97,6 @@ func WithURLs(urls map[string]string) ClientOption {
 		}
 	}
 }
-
-const (
-	ApplicationJson        ContentType = "application/json"
-	ApplicationContextJson ContentType = "application/context+json"
-)
 
 // DefaultURLs
 var DefaultURLs = map[string]string{
@@ -160,10 +165,10 @@ func (c *Client) Get(url string, dest interface{}) error {
 		return err
 	}
 	if c.FiatUser != "" {
-		req.Header.Set("X-Spinnaker-User", c.FiatUser)
+		req.Header.Set(SpinFiatUserHeader, c.FiatUser)
 		// I /think/, since we're not going through Gate, we need to fill in the
 		// accounts header as though we were configured with Fiat.
-		req.Header.Set("X-Spinnaker-Accounts", c.FiatUser)
+		req.Header.Set(SpinFiatAccountHeader, c.FiatUser)
 	}
 
 	resp, err := c.http.Do(req)
@@ -197,6 +202,63 @@ func (e *FailedResponse) Error() string {
 	return fmt.Sprintf("%v: %s", e.StatusCode, string(e.Response))
 }
 
+// Patch updates a resource for the target URL
+func (c *Client) Patch(url string, contentType ContentType, body interface{}, dest interface{}) error {
+	var err error
+	jsonBody, err := json.Marshal(body)
+
+	if err != nil {
+		return fmt.Errorf("could not patch, body could not be marshalled to json: %w", err)
+	}
+
+	req, err := http.NewRequest("PATCH", url, bytes.NewBuffer(jsonBody))
+
+	if err != nil {
+		return err
+	}
+
+	if c.FiatUser != "" {
+		req.Header.Set(SpinFiatUserHeader, c.FiatUser)
+		req.Header.Set(SpinFiatAccountHeader, c.FiatUser)
+	}
+
+	req.Header.Set("Content-Type", string(contentType))
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode >= 200 && resp.StatusCode < 400 {
+		if err != nil {
+			return err
+		}
+
+		// Only unmarshalling if we actually have a response body (as opposed
+		// to, for example, a simple "201 Created" response)
+		if len(b) > 0 {
+			err := json.Unmarshal(b, &dest)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+	} else if resp.StatusCode >= 400 && resp.StatusCode < 600 {
+		return &FailedResponse{StatusCode: resp.StatusCode, Response: b}
+	}
+	return &ErrUnsupportedStatusCode{Code: resp.StatusCode}
+
+}
+
+// PatchWithRetry updates a resource for the target URL
+func (c *Client) PatchWithRetry(url string, contentType ContentType, body interface{}, dest interface{}) error {
+	return c.RequestWithRetry(func() error {
+		return c.Patch(url, contentType, body, dest)
+	})
+}
+
 // Post a JSON payload from the URL then decode it into the 'dest' arguement.
 func (c *Client) Post(url string, contentType ContentType, body interface{}, dest interface{}) error {
 	var err error
@@ -210,10 +272,10 @@ func (c *Client) Post(url string, contentType ContentType, body interface{}, des
 		return err
 	}
 	if c.FiatUser != "" {
-		req.Header.Set("X-Spinnaker-User", c.FiatUser)
+		req.Header.Set(SpinFiatUserHeader, c.FiatUser)
 		// I /think/, since we're not going through Gate, we need to fill in the
 		// accounts header as though we were configured with Fiat.
-		req.Header.Set("X-Spinnaker-Accounts", c.FiatUser)
+		req.Header.Set(SpinFiatAccountHeader, c.FiatUser)
 	}
 	req.Header.Set("Content-Type", string(contentType))
 
@@ -262,10 +324,10 @@ func (c *Client) Put(url string, contentType ContentType, body interface{}, dest
 		return err
 	}
 	if c.FiatUser != "" {
-		req.Header.Set("X-Spinnaker-User", c.FiatUser)
+		req.Header.Set(SpinFiatUserHeader, c.FiatUser)
 		// I /think/, since we're not going through Gate, we need to fill in the
 		// accounts header as though we were configured with Fiat.
-		req.Header.Set("X-Spinnaker-Accounts", c.FiatUser)
+		req.Header.Set(SpinFiatAccountHeader, c.FiatUser)
 	}
 	req.Header.Set("Content-Type", string(contentType))
 	resp, err := c.http.Do(req)
