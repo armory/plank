@@ -39,7 +39,7 @@ type Pipeline struct {
 	LastModifiedBy       string                   `json:"lastModifiedBy" yaml:"lastModifiedBy" hcl:"lastModifiedBy"`
 	Config               interface{}              `json:"config,omitempty" yaml:"config,omitempty" hcl:"config,omitempty"`
 	UpdateTs             string                   `json:"updateTs" yaml:"updateTs" hcl:"updateTs"`
-	Locked               PipelineLockType         `json:"locked,omitempty" yaml:"locked,omitempty" hcl:"locked,omitempty"`
+	Locked               *PipelineLockType        `json:"locked,omitempty" yaml:"locked,omitempty" hcl:"locked,omitempty"`
 }
 
 type PipelineLockType struct {
@@ -48,8 +48,10 @@ type PipelineLockType struct {
 }
 
 func (p *Pipeline) Lock() *Pipeline {
-	p.Locked.UI = true
-	p.Locked.AllowUnlockUI = true
+	p.Locked = &PipelineLockType{
+		UI:            true,
+		AllowUnlockUI: true,
+	}
 	return p
 }
 
