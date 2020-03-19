@@ -17,14 +17,15 @@ package plank
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetUser(t *testing.T) {
-	payload := `{"name":"testapp","admin":true,"accounts":[],"applications":[]}}`
+	payload := `{"name":"testapp","admin":true,"accounts":[],"applications":[]}`
 	client := NewTestClient(func(req *http.Request) *http.Response {
 		assert.Equal(t, req.URL.String(), "http://armory-fiat:7003/authorize/foo")
 		return &http.Response{
