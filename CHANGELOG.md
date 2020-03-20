@@ -63,4 +63,5 @@ paylods from 4xx and 5xx responses in the `plank.FailedResponse` struct.
   struct makes sense for the context.
 
 [Unreleased]: https://github.com/armory/plank/compare/v1.3.0...HEAD
+[2.0.0]: https://github.com/armory/plank/compare/v1.3.0...v2.0.0
 [1.3.0]: https://github.com/armory/plank/compare/v1.2.1...v1.3.0

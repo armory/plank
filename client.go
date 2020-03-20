@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Armory, Inc.
+ * Copyright 2020 Armory, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -141,6 +141,31 @@ func New(opts ...ClientOption) *Client {
 	return c
 }
 
+// FailedResponse captures a 4xx/5xx response from the upstream Spinnaker service.
+// It is expected that the caller destructures the response according to the structure they expect.
+type FailedResponse struct {
+	Response   []byte
+	StatusCode int
+}
+
+func (e *FailedResponse) Error() string {
+	return fmt.Sprintf("%v: %s", http.StatusText(e.StatusCode), string(e.Response))
+}
+
+// Method represents a supported HTTP Method in Plank.
+type Method string
+
+const (
+	// Patch is a PATCH HTTP method
+	Patch Method = http.MethodPatch
+	// Post is a POST HTTP method
+	Post Method = http.MethodPost
+	// Put is a PUT HTTP method
+	Put Method = http.MethodPut
+	// Get is a GET HTTP method
+	Get Method = http.MethodGet
+)
+
 type RequestFunction func() error
 
 func (c *Client) RequestWithRetry(f RequestFunction) error {
@@ -158,63 +183,17 @@ func (c *Client) RequestWithRetry(f RequestFunction) error {
 	return err
 }
 
-// Get a JSON payload from the URL then decode it into the 'dest' arguement.
-func (c *Client) Get(url string, dest interface{}) error {
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return err
-	}
-	if c.FiatUser != "" {
-		req.Header.Set(SpinFiatUserHeader, c.FiatUser)
-		// I /think/, since we're not going through Gate, we need to fill in the
-		// accounts header as though we were configured with Fiat.
-		req.Header.Set(SpinFiatAccountHeader, c.FiatUser)
-	}
-
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 200 && resp.StatusCode < 400 {
-		if err := json.NewDecoder(resp.Body).Decode(dest); err != nil {
-			return err
-		}
-		return nil
-	}
-	return &ErrUnsupportedStatusCode{Code: resp.StatusCode}
-}
-
-func (c *Client) GetWithRetry(url string, dest interface{}) error {
-	return c.RequestWithRetry(func() error {
-		return c.Get(url, dest)
-	})
-}
-
-// FailedResponse captures a 4xx/5xx response from the upstream Spinnaker service.
-// It is expected that the caller destructures the response according to the structure they expect.
-type FailedResponse struct {
-	Response   []byte
-	StatusCode int
-}
-
-func (e *FailedResponse) Error() string {
-	return fmt.Sprintf("%v: %s", e.StatusCode, string(e.Response))
-}
-
-// Patch updates a resource for the target URL
-func (c *Client) Patch(url string, contentType ContentType, body interface{}, dest interface{}) error {
-	var err error
+func (c *Client) request(method Method, url string, contentType ContentType, body interface{}, dest interface{}) error {
 	jsonBody, err := json.Marshal(body)
 
 	if err != nil {
-		return fmt.Errorf("could not patch, body could not be marshalled to json: %w", err)
+		return fmt.Errorf("could not %q, body could not be marshalled to json: %w", string(method), err)
 	}
 
-	req, err := http.NewRequest("PATCH", url, bytes.NewBuffer(jsonBody))
+	req, err := http.NewRequest(string(method), url, bytes.NewBuffer(jsonBody))
 
 	if err != nil {
-		return err
+		return fmt.Errorf("could not %q, new request could not be made: %w", string(method), err)
 	}
 
 	if c.FiatUser != "" {
@@ -225,31 +204,37 @@ func (c *Client) Patch(url string, contentType ContentType, body interface{}, de
 	req.Header.Set("Content-Type", string(contentType))
 
 	resp, err := c.http.Do(req)
+
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
 	b, err := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode >= 200 && resp.StatusCode < 400 {
-		if err != nil {
-			return err
-		}
-
-		// Only unmarshalling if we actually have a response body (as opposed
-		// to, for example, a simple "201 Created" response)
-		if len(b) > 0 {
-			err := json.Unmarshal(b, &dest)
-			if err != nil {
-				return err
-			}
-			return nil
-		}
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return json.Unmarshal(b, dest)
 	} else if resp.StatusCode >= 400 && resp.StatusCode < 600 {
 		return &FailedResponse{StatusCode: resp.StatusCode, Response: b}
+	} else {
+		// If status falls outside the range of 200 - 599 then return an error.
+		return &ErrUnsupportedStatusCode{Code: resp.StatusCode}
 	}
-	return &ErrUnsupportedStatusCode{Code: resp.StatusCode}
+}
 
+// Get a JSON payload from the URL then decode it into the 'dest' arguement.
+func (c *Client) Get(url string, dest interface{}) error {
+	return c.request(Get, url, ApplicationJson, nil, dest)
+}
+
+func (c *Client) GetWithRetry(url string, dest interface{}) error {
+	return c.RequestWithRetry(func() error {
+		return c.Get(url, dest)
+	})
+}
+
+// Patch updates a resource for the target URL
+func (c *Client) Patch(url string, contentType ContentType, body interface{}, dest interface{}) error {
+	return c.request(Patch, url, contentType, body, dest)
 }
 
 // PatchWithRetry updates a resource for the target URL
@@ -261,49 +246,7 @@ func (c *Client) PatchWithRetry(url string, contentType ContentType, body interf
 
 // Post a JSON payload from the URL then decode it into the 'dest' arguement.
 func (c *Client) Post(url string, contentType ContentType, body interface{}, dest interface{}) error {
-	var err error
-	jsonBody, err := json.Marshal(body)
-	if err != nil {
-		return fmt.Errorf("could not post - body could not be marshaled to json - %v", err)
-	}
-
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
-	if err != nil {
-		return err
-	}
-	if c.FiatUser != "" {
-		req.Header.Set(SpinFiatUserHeader, c.FiatUser)
-		// I /think/, since we're not going through Gate, we need to fill in the
-		// accounts header as though we were configured with Fiat.
-		req.Header.Set(SpinFiatAccountHeader, c.FiatUser)
-	}
-	req.Header.Set("Content-Type", string(contentType))
-
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	b, err := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode >= 200 && resp.StatusCode < 400 {
-		if err != nil {
-			return err
-		}
-
-		// Only unmarshalling if we actually have a response body (as opposed
-		// to, for example, a simple "201 Created" response)
-		if len(b) > 0 {
-			err := json.Unmarshal(b, &dest)
-			if err != nil {
-				return err
-			}
-			return nil
-		}
-	} else if resp.StatusCode >= 400 && resp.StatusCode < 600 {
-		return &FailedResponse{StatusCode: resp.StatusCode, Response: b}
-	}
-	return &ErrUnsupportedStatusCode{Code: resp.StatusCode}
+	return c.request(Post, url, contentType, body, dest)
 }
 
 func (c *Client) PostWithRetry(url string, contentType ContentType, body interface{}, dest interface{}) error {
@@ -314,48 +257,7 @@ func (c *Client) PostWithRetry(url string, contentType ContentType, body interfa
 
 // Post a JSON payload from the URL then decode it into the 'dest' arguement.
 func (c *Client) Put(url string, contentType ContentType, body interface{}, dest interface{}) error {
-	var err error
-	jsonBody, err := json.Marshal(body)
-	if err != nil {
-		return fmt.Errorf("could not put - body could not be marshaled to json - %v", err)
-	}
-	req, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(jsonBody))
-	if err != nil {
-		return err
-	}
-	if c.FiatUser != "" {
-		req.Header.Set(SpinFiatUserHeader, c.FiatUser)
-		// I /think/, since we're not going through Gate, we need to fill in the
-		// accounts header as though we were configured with Fiat.
-		req.Header.Set(SpinFiatAccountHeader, c.FiatUser)
-	}
-	req.Header.Set("Content-Type", string(contentType))
-	resp, err := c.http.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	b, err := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode >= 200 && resp.StatusCode < 400 {
-		if err != nil {
-			return err
-		}
-
-		// Only unmarshalling if we actually have a response body (as opposed
-		// to, for example, a simple "201 Created" response)
-		if len(b) > 0 {
-			err := json.Unmarshal(b, &dest)
-			if err != nil {
-				return err
-			}
-			return nil
-		}
-	} else if resp.StatusCode >= 400 && resp.StatusCode < 600 {
-		return &FailedResponse{StatusCode: resp.StatusCode, Response: b}
-	}
-
-	return &ErrUnsupportedStatusCode{Code: resp.StatusCode}
+	return c.request(Put, url, contentType, body, dest)
 }
 
 func (c *Client) PutWithRetry(url string, contentType ContentType, body interface{}, dest interface{}) error {
