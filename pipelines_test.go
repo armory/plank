@@ -43,8 +43,9 @@ func TestGetPipelines(t *testing.T) {
 
 func TestPipeline_ValidateRefIds(t *testing.T) {
 	tests := map[string]struct {
-		stage  string
-		expected error
+		stage           string
+		expectedError   []string
+		expectedWarning []string
 	}{
 		"refIds_happy_path" : {
 			`{
@@ -77,14 +78,31 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 								"notifications": [],
 								"refId": "mj2",
 								"requisiteStageRefIds": [
-									"2"
+									"2","1"
 								],
 								"type": "manualJudgment"
 							}
 						]
-					}`, nil,
+					}`,
+					[]string{},
+			[]string{},
 		},
 		"refIds_mandatory" : {
+			`{
+						"stages": [
+							{
+								"failPipeline": true,
+								"judgmentInputs": [],
+								"name": "Manual Judgment 2",
+								"notifications": [],
+								"type": "manualJudgment"
+							}
+						]
+					}`,
+					[]string{"refId is a mandatory field for stages"},
+			[]string{},
+		},
+		"refIds_and_stageref_do_not_exists" : {
 			`{
 						"stages": [
 							{
@@ -98,7 +116,9 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 								"type": "manualJudgment"
 							}
 						]
-					}`, errors.New("refId is a mandatory field for stages"),
+					}`,
+			[]string{"refId is a mandatory field for stages","requisiteStageRefIds mj1 does not exists"},
+			[]string{},
 		},
 		"refIds_duplicated" : {
 			`{
@@ -109,9 +129,6 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 								"name": "Manual Judgment 2",
 								"notifications": [],
 								"refId": "mj2",
-								"requisiteStageRefIds": [
-									"mj1"
-								],
 								"type": "manualJudgment"
 							},
 							{
@@ -120,13 +137,12 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 								"name": "Manual Judgment 2",
 								"notifications": [],
 								"refId": "mj2",
-								"requisiteStageRefIds": [
-									"mj1"
-								],
 								"type": "manualJudgment"
 							}
 						]
-					}`, errors.New("refId should be unique, currently two or more stages share the same refId"),
+					}`,
+					[]string{"refId should be unique, currently two or more stages share the same refId"},
+			[]string{},
 		},
 		"requisiteStageRefIds_does_not_exists" : {
 			`{
@@ -143,7 +159,9 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 								"type": "manualJudgment"
 							}
 						]
-					}`, errors.New("requisiteStageRefIds: mj1 does not exists"),
+					}`,
+					[]string{"requisiteStageRefIds mj1 does not exists"},
+			[]string{},
 		},
 		"requisiteStageRefIds_with_same_refId" : {
 			`{
@@ -160,7 +178,17 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 								"type": "manualJudgment"
 							}
 						]
-					}`, errors.New("refId cannot be dependant of itself (requisiteStageRefIds)"),
+					}`,
+					[]string{"circular dependency detected, stage with refId mj2 cannot refer to itself"},
+			[]string{},
+		},
+		"warning_no_stages" : {
+			`{
+						"stages": [
+						]
+					}`,
+			[]string{},
+			[]string{"Current pipeline has no stages"},
 		},
 	}
 
@@ -174,8 +202,19 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 				assert.Equal(t, true, err)
 			}
 			pipe.Stages = d["stages"]
-			err = pipe.ValidateRefIds()
-			assert.Equal(t, c.expected, err)
+			result := pipe.ValidateRefIds()
+			expectedValidation := ValidationResult{Errors: nil, Warnings: nil}
+			for _, errorMessage := range c.expectedError {
+				if errorMessage != ""{
+					expectedValidation.Errors = append(expectedValidation.Errors, errors.New(errorMessage))
+				}
+			}
+			for _, warningMessage := range c.expectedWarning {
+				if warningMessage != ""{
+					expectedValidation.Warnings = append(expectedValidation.Warnings, warningMessage)
+				}
+			}
+			assert.Equal(t, expectedValidation, result)
 		})
 	}
 }

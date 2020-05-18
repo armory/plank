@@ -56,30 +56,36 @@ func (p *Pipeline) Lock() *Pipeline {
 	return p
 }
 
-func (p *Pipeline) ValidateRefIds() error {
+type ValidationResult struct {
+	Errors   []error
+	Warnings []string
+}
+
+func (p *Pipeline) ValidateRefIds() ValidationResult {
 
 	var refidsSet = make(map[string]bool)
 	var requisitestagerefSet = make(map[string]bool)
+	validationResult := ValidationResult{}
 
-	//TODO: What should I return if stages do not exists? I think is valid to not have
-	//Check if there are stages, if not then do not process anything
+	//Check if there are stages, if not then do not process anything but log a warning
 	if p.Stages != nil && len(p.Stages) > 0 {
 		//Iterate all stages
 		for _, stageMap := range p.Stages {
 
-			//ALL stages should have a redId
+			//ALL stages should have a refId
+			var refId string
 			if _, exists := stageMap["refId"]; !exists {
-				//TODO: I think this should fail since refId is mandarory?
-				return errors.New("refId is a mandatory field for stages")
-			}
-
-			refId := stageMap["refId"].(string)
-
-			if _,exists := refidsSet[refId]; exists {
-				//TODO: Change this error message
-				return errors.New("refId should be unique, currently two or more stages share the same refId")
+				// Separate this validation as per comment in: https://github.com/armory/plank/pull/69
+				// Card created: ENG-5293
+				validationResult.Errors = append(validationResult.Errors, errors.New("refId is a mandatory field for stages"))
 			} else {
-				refidsSet[refId] = true
+				refId = stageMap["refId"].(string)
+				if _,exists := refidsSet[refId]; exists {
+					//TODO: Change this error message
+					validationResult.Errors = append(validationResult.Errors, errors.New("refId should be unique, currently two or more stages share the same refId"))
+				} else {
+					refidsSet[refId] = true
+				}
 			}
 
 			//Check requisiteStageRefIds existence
@@ -87,10 +93,8 @@ func (p *Pipeline) ValidateRefIds() error {
 				requisiteStageRefIds := stageMap["requisiteStageRefIds"].([]interface{})
 
 				for _, val := range requisiteStageRefIds {
-					// Save relationship refId-requisiteStageRefIds
-					if refId == val {
-						//TODO: Change error message
-						return errors.New("refId cannot be dependant of itself (requisiteStageRefIds)")
+					if refId != "" && refId == val {
+						validationResult.Errors = append(validationResult.Errors, errors.New(fmt.Sprintf("circular dependency detected, stage with refId %v cannot refer to itself", refId)))
 					}
 
 					requisitestagerefSet[fmt.Sprintf("%v", val)] = true
@@ -101,13 +105,14 @@ func (p *Pipeline) ValidateRefIds() error {
 		//Check that all requisiteStageRefIds exists in refIds
 		for key,_ := range requisitestagerefSet {
 			if _, exists := refidsSet[key]; !exists{
-				//TODO: Change error message
-				return errors.New(fmt.Sprintf("requisiteStageRefIds: %v does not exists", key))
+				validationResult.Errors = append(validationResult.Errors, errors.New(fmt.Sprintf("requisiteStageRefIds %v does not exists", key)))
 			}
 		}
+	} else {
+		validationResult.Warnings = append(validationResult.Warnings, "Current pipeline has no stages")
 	}
 
-	return nil
+	return validationResult
 }
 
 // utility to return the base URL for all pipelines API calls
