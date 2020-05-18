@@ -16,6 +16,7 @@
 package plank
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -53,6 +54,60 @@ func (p *Pipeline) Lock() *Pipeline {
 		AllowUnlockUI: true,
 	}
 	return p
+}
+
+func (p *Pipeline) ValidateRefIds() error {
+
+	var refidsSet = make(map[string]bool)
+	var requisitestagerefSet = make(map[string]bool)
+
+	//TODO: What should I return if stages do not exists? I think is valid to not have
+	//Check if there are stages, if not then do not process anything
+	if p.Stages != nil && len(p.Stages) > 0 {
+		//Iterate all stages
+		for _, stageMap := range p.Stages {
+
+			//ALL stages should have a redId
+			if _, exists := stageMap["refId"]; !exists {
+				//TODO: I think this should fail since refId is mandarory?
+				return errors.New("refId is a mandatory field for stages")
+			}
+
+			refId := stageMap["refId"].(string)
+
+			if _,exists := refidsSet[refId]; exists {
+				//TODO: Change this error message
+				return errors.New("refId should be unique, currently two or more stages share the same refId")
+			} else {
+				refidsSet[refId] = true
+			}
+
+			//Check requisiteStageRefIds existence
+			if _,exists := stageMap["requisiteStageRefIds"]; exists {
+				requisiteStageRefIds := stageMap["requisiteStageRefIds"].([]interface{})
+
+				for _, val := range requisiteStageRefIds {
+					// Save relationship refId-requisiteStageRefIds
+					if refId == val {
+						//TODO: Change error message
+						return errors.New("refId cannot be dependant of itself (requisiteStageRefIds)")
+					}
+
+					requisitestagerefSet[fmt.Sprintf("%v", val)] = true
+				}
+			}
+		}
+
+		//Check that all requisiteStageRefIds exists in refIds
+		for key,_ := range requisitestagerefSet {
+			if _, exists := refidsSet[key]; !exists{
+				//TODO: Change error message
+				return errors.New(fmt.Sprintf("requisiteStageRefIds: %v does not exists", key))
+			}
+		}
+	}
+
+	return nil
 }
 
 // utility to return the base URL for all pipelines API calls
