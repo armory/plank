@@ -99,7 +99,7 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 							}
 						]
 					}`,
-					[]string{"refId is a mandatory field for stages"},
+					[]string{"Required refId field not found"},
 			[]string{},
 		},
 		"refIds_and_stageref_do_not_exists" : {
@@ -117,7 +117,7 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 							}
 						]
 					}`,
-			[]string{"refId is a mandatory field for stages","requisiteStageRefIds mj1 does not exists"},
+			[]string{"Required refId field not found","Referenced stage mj1 cannot be found."},
 			[]string{},
 		},
 		"refIds_duplicated" : {
@@ -141,7 +141,7 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 							}
 						]
 					}`,
-					[]string{"refId should be unique, currently two or more stages share the same refId"},
+					[]string{"Duplicate stage refId mj2 field found"},
 			[]string{},
 		},
 		"requisiteStageRefIds_does_not_exists" : {
@@ -160,7 +160,7 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 							}
 						]
 					}`,
-					[]string{"requisiteStageRefIds mj1 does not exists"},
+					[]string{"Referenced stage mj1 cannot be found."},
 			[]string{},
 		},
 		"requisiteStageRefIds_with_same_refId" : {
@@ -179,7 +179,7 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 							}
 						]
 					}`,
-					[]string{"circular dependency detected, stage with refId mj2 cannot refer to itself"},
+					[]string{"mj2 refers to itself. Circular references are not supported"},
 			[]string{},
 		},
 		"warning_no_stages" : {

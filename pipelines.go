@@ -77,12 +77,11 @@ func (p *Pipeline) ValidateRefIds() ValidationResult {
 			if _, exists := stageMap["refId"]; !exists {
 				// Separate this validation as per comment in: https://github.com/armory/plank/pull/69
 				// Card created: ENG-5293
-				validationResult.Errors = append(validationResult.Errors, errors.New("refId is a mandatory field for stages"))
+				validationResult.Errors = append(validationResult.Errors, errors.New("Required refId field not found"))
 			} else {
 				refId = stageMap["refId"].(string)
 				if _,exists := refidsSet[refId]; exists {
-					//TODO: Change this error message
-					validationResult.Errors = append(validationResult.Errors, errors.New("refId should be unique, currently two or more stages share the same refId"))
+					validationResult.Errors = append(validationResult.Errors, errors.New(fmt.Sprintf("Duplicate stage refId %v field found", refId)))
 				} else {
 					refidsSet[refId] = true
 				}
@@ -94,7 +93,7 @@ func (p *Pipeline) ValidateRefIds() ValidationResult {
 
 				for _, val := range requisiteStageRefIds {
 					if refId != "" && refId == val {
-						validationResult.Errors = append(validationResult.Errors, errors.New(fmt.Sprintf("circular dependency detected, stage with refId %v cannot refer to itself", refId)))
+						validationResult.Errors = append(validationResult.Errors, errors.New(fmt.Sprintf("%v refers to itself. Circular references are not supported", refId)))
 					}
 
 					requisitestagerefSet[fmt.Sprintf("%v", val)] = true
@@ -105,7 +104,7 @@ func (p *Pipeline) ValidateRefIds() ValidationResult {
 		//Check that all requisiteStageRefIds exists in refIds
 		for key,_ := range requisitestagerefSet {
 			if _, exists := refidsSet[key]; !exists{
-				validationResult.Errors = append(validationResult.Errors, errors.New(fmt.Sprintf("requisiteStageRefIds %v does not exists", key)))
+				validationResult.Errors = append(validationResult.Errors, errors.New(fmt.Sprintf("Referenced stage %v cannot be found.", key)))
 			}
 		}
 	} else {
