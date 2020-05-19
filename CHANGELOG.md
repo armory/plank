@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Removed
+
+
+## [3.0.0] 2020-05-19
+### Added
+
+### Changed
 - (breaking change) `plank.Client` change the defaults URLs from `armory-orca` etc to `localhost` as it's more common to do `kubectl port-forwards` for each service locally.
 - (breaking change) `plank.Client` has the cient option `WithURLs` renamed to `WithOverrideAllURLs` to make it more obvious what this function is doing
 
@@ -76,5 +86,7 @@ paylods from 4xx and 5xx responses in the `plank.FailedResponse` struct.
   struct makes sense for the context.
 
 [Unreleased]: https://github.com/armory/plank/compare/v1.3.0...HEAD
+[3.0.0]: https://github.com/armory/plank/compare/v2.1.0...v3.0.0
+[2.1.0]: https://github.com/armory/plank/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/armory/plank/compare/v1.3.0...v2.0.0
 [1.3.0]: https://github.com/armory/plank/compare/v1.2.1...v1.3.0
