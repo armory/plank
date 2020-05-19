@@ -27,7 +27,7 @@ import (
 func TestGetUser(t *testing.T) {
 	payload := `{"name":"testapp","admin":true,"accounts":[],"applications":[]}`
 	client := NewTestClient(func(req *http.Request) *http.Response {
-		assert.Equal(t, req.URL.String(), "http://armory-fiat:7003/authorize/foo")
+		assert.Equal(t, req.URL.String(), "http://localhost:7003/authorize/foo")
 		return &http.Response{
 			StatusCode: 200,
 			Body:       ioutil.NopCloser(bytes.NewBufferString(payload)),

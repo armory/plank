@@ -78,7 +78,7 @@ func TestOptions(t *testing.T) {
 	assert.Equal(t, &http.Client{}, test_client.http)
 
 	test_retry_inc := New(WithRetryIncrement(5 * time.Second))
-	assert.Equal(t, 5 * time.Second, test_retry_inc.retryIncrement)
+	assert.Equal(t, 5*time.Second, test_retry_inc.retryIncrement)
 
 	test_fiat := New(WithFiatUser("foo"))
 	assert.Equal(t, "foo", test_fiat.FiatUser)
