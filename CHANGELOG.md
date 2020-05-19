@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+- `plank.Client` change the defaults URLs from `armory-orca` etc to `localhost` as it's more common to do `kubectl port-forwards` for each service locally.
 
 ### Fixed
 

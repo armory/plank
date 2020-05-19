@@ -100,10 +100,10 @@ func WithURLs(urls map[string]string) ClientOption {
 
 // DefaultURLs
 var DefaultURLs = map[string]string{
-	"orca":    "http://armory-orca:8083",
-	"front50": "http://armory-front50:8080",
-	"fiat":    "http://armory-fiat:7003",
-	"gate":    "http://armory-gate:8084",
+	"orca":    "http://localhost:8083",
+	"front50": "http://localhost:8080",
+	"fiat":    "http://localhost:7003",
+	"gate":    "http://localhost:8084",
 }
 
 // New constructs a Client using a default client and sane non-shared http transport
