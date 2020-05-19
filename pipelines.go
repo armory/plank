@@ -16,6 +16,7 @@
 package plank
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -53,6 +54,64 @@ func (p *Pipeline) Lock() *Pipeline {
 		AllowUnlockUI: true,
 	}
 	return p
+}
+
+type ValidationResult struct {
+	Errors   []error
+	Warnings []string
+}
+
+func (p *Pipeline) ValidateRefIds() ValidationResult {
+
+	var refidsSet = make(map[string]bool)
+	var requisitestagerefSet = make(map[string]bool)
+	validationResult := ValidationResult{}
+
+	//Check if there are stages, if not then do not process anything but log a warning
+	if p.Stages != nil && len(p.Stages) > 0 {
+		//Iterate all stages
+		for _, stageMap := range p.Stages {
+
+			//ALL stages should have a refId
+			var refId string
+			if _, exists := stageMap["refId"]; !exists {
+				// Separate this validation as per comment in: https://github.com/armory/plank/pull/69
+				// Card created: ENG-5293
+				validationResult.Errors = append(validationResult.Errors, errors.New("Required refId field not found"))
+			} else {
+				refId = stageMap["refId"].(string)
+				if _,exists := refidsSet[refId]; exists {
+					validationResult.Errors = append(validationResult.Errors, errors.New(fmt.Sprintf("Duplicate stage refId %v field found", refId)))
+				} else {
+					refidsSet[refId] = true
+				}
+			}
+
+			//Check requisiteStageRefIds existence
+			if _,exists := stageMap["requisiteStageRefIds"]; exists {
+				requisiteStageRefIds := stageMap["requisiteStageRefIds"].([]interface{})
+
+				for _, val := range requisiteStageRefIds {
+					if refId != "" && refId == val {
+						validationResult.Errors = append(validationResult.Errors, errors.New(fmt.Sprintf("%v refers to itself. Circular references are not supported", refId)))
+					}
+
+					requisitestagerefSet[fmt.Sprintf("%v", val)] = true
+				}
+			}
+		}
+
+		//Check that all requisiteStageRefIds exists in refIds
+		for key,_ := range requisitestagerefSet {
+			if _, exists := refidsSet[key]; !exists{
+				validationResult.Errors = append(validationResult.Errors, errors.New(fmt.Sprintf("Referenced stage %v cannot be found.", key)))
+			}
+		}
+	} else {
+		validationResult.Warnings = append(validationResult.Warnings, "Current pipeline has no stages")
+	}
+
+	return validationResult
 }
 
 // utility to return the base URL for all pipelines API calls

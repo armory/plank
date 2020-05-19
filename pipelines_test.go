@@ -17,6 +17,8 @@ package plank
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
@@ -37,4 +39,182 @@ func TestGetPipelines(t *testing.T) {
 	val, err := c.GetPipelines("myapp")
 	assert.Nil(t, err)
 	assert.Equal(t, len(val), 0) // Should get 0 pipelines back.
+}
+
+func TestPipeline_ValidateRefIds(t *testing.T) {
+	tests := map[string]struct {
+		stage           string
+		expectedError   []string
+		expectedWarning []string
+	}{
+		"refIds_happy_path" : {
+			`{
+						"stages": [
+							{
+								"failPipeline": true,
+								"judgmentInputs": [],
+								"name": "Manual Judgment 2",
+								"notifications": [],
+								"refId": "1",
+								"requisiteStageRefIds": [
+								],
+								"type": "manualJudgment"
+							},
+							{
+								"failPipeline": true,
+								"judgmentInputs": [],
+								"name": "Manual Judgment 2",
+								"notifications": [],
+								"refId": "2",
+								"requisiteStageRefIds": [
+									"1"
+								],
+								"type": "manualJudgment"
+							},
+							{
+								"failPipeline": true,
+								"judgmentInputs": [],
+								"name": "Manual Judgment 2",
+								"notifications": [],
+								"refId": "mj2",
+								"requisiteStageRefIds": [
+									"2","1"
+								],
+								"type": "manualJudgment"
+							}
+						]
+					}`,
+					[]string{},
+			[]string{},
+		},
+		"refIds_mandatory" : {
+			`{
+						"stages": [
+							{
+								"failPipeline": true,
+								"judgmentInputs": [],
+								"name": "Manual Judgment 2",
+								"notifications": [],
+								"type": "manualJudgment"
+							}
+						]
+					}`,
+					[]string{"Required refId field not found"},
+			[]string{},
+		},
+		"refIds_and_stageref_do_not_exists" : {
+			`{
+						"stages": [
+							{
+								"failPipeline": true,
+								"judgmentInputs": [],
+								"name": "Manual Judgment 2",
+								"notifications": [],
+								"requisiteStageRefIds": [
+									"mj1"
+								],
+								"type": "manualJudgment"
+							}
+						]
+					}`,
+			[]string{"Required refId field not found","Referenced stage mj1 cannot be found."},
+			[]string{},
+		},
+		"refIds_duplicated" : {
+			`{
+						"stages": [
+							{
+								"failPipeline": true,
+								"judgmentInputs": [],
+								"name": "Manual Judgment 2",
+								"notifications": [],
+								"refId": "mj2",
+								"type": "manualJudgment"
+							},
+							{
+								"failPipeline": true,
+								"judgmentInputs": [],
+								"name": "Manual Judgment 2",
+								"notifications": [],
+								"refId": "mj2",
+								"type": "manualJudgment"
+							}
+						]
+					}`,
+					[]string{"Duplicate stage refId mj2 field found"},
+			[]string{},
+		},
+		"requisiteStageRefIds_does_not_exists" : {
+			`{
+						"stages": [
+							{
+								"failPipeline": true,
+								"judgmentInputs": [],
+								"name": "Manual Judgment 2",
+								"notifications": [],
+								"refId": "mj2",
+								"requisiteStageRefIds": [
+									"mj1"
+								],
+								"type": "manualJudgment"
+							}
+						]
+					}`,
+					[]string{"Referenced stage mj1 cannot be found."},
+			[]string{},
+		},
+		"requisiteStageRefIds_with_same_refId" : {
+			`{
+						"stages": [
+							{
+								"failPipeline": true,
+								"judgmentInputs": [],
+								"name": "Manual Judgment 2",
+								"notifications": [],
+								"refId": "mj2",
+								"requisiteStageRefIds": [
+									"mj2"
+								],
+								"type": "manualJudgment"
+							}
+						]
+					}`,
+					[]string{"mj2 refers to itself. Circular references are not supported"},
+			[]string{},
+		},
+		"warning_no_stages" : {
+			`{
+						"stages": [
+						]
+					}`,
+			[]string{},
+			[]string{"Current pipeline has no stages"},
+		},
+	}
+
+	for testName, c := range tests {
+		t.Run(testName, func(t *testing.T) {
+			pipe := &Pipeline{}
+			// It looks horrible but it works
+			d := make(map[string][]map[string]interface{})
+			err := json.Unmarshal([]byte(c.stage), &d)
+			if err != nil {
+				assert.Equal(t, true, err)
+			}
+			pipe.Stages = d["stages"]
+			result := pipe.ValidateRefIds()
+			expectedValidation := ValidationResult{Errors: nil, Warnings: nil}
+			for _, errorMessage := range c.expectedError {
+				if errorMessage != ""{
+					expectedValidation.Errors = append(expectedValidation.Errors, errors.New(errorMessage))
+				}
+			}
+			for _, warningMessage := range c.expectedWarning {
+				if warningMessage != ""{
+					expectedValidation.Warnings = append(expectedValidation.Warnings, warningMessage)
+				}
+			}
+			assert.Equal(t, expectedValidation, result)
+		})
+	}
 }
