@@ -89,7 +89,7 @@ func WithFiatUser(user string) ClientOption {
 	}
 }
 
-func WithURLs(urls map[string]string) ClientOption {
+func WithOverrideAllURLs(urls map[string]string) ClientOption {
 	return func(c *Client) {
 		c.URLs = make(map[string]string)
 		for k, v := range urls {

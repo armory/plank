@@ -86,6 +86,6 @@ func TestOptions(t *testing.T) {
 	test_max_retries := New(WithMaxRetries(5))
 	assert.Equal(t, 5, test_max_retries.maxRetry)
 
-	test_with_urls := New(WithURLs(map[string]string{"foo":"http://foo"}))
-	assert.Equal(t, map[string]string{"foo":"http://foo"}, test_with_urls.URLs)
+	test_with_urls := New(WithOverrideAllURLs(map[string]string{"foo": "http://foo"}))
+	assert.Equal(t, map[string]string{"foo": "http://foo"}, test_with_urls.URLs)
 }
