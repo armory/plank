@@ -99,8 +99,8 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 							}
 						]
 					}`,
-					[]string{"Required refId field not found"},
-			[]string{},
+					[]string{},
+			[]string{"RefId field not found in stage"},
 		},
 		"refIds_and_stageref_do_not_exists" : {
 			`{
@@ -117,8 +117,8 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 							}
 						]
 					}`,
-			[]string{"Required refId field not found","Referenced stage mj1 cannot be found."},
-			[]string{},
+			[]string{"Referenced stage mj1 cannot be found."},
+			[]string{"RefId field not found in stage"},
 		},
 		"refIds_duplicated" : {
 			`{
