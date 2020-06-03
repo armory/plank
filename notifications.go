@@ -17,13 +17,14 @@ package plank
 
 import "fmt"
 
-func (notifications *NotificationsType) FillAppNotificationFields(appName string, ) {
+func (notifications *NotificationsType) FillAppNotificationFields(appName string) {
 	notificationsMap := *notifications
 	for notApp, sliceOfNotifications := range notificationsMap{
-		for _, currentNotification := range sliceOfNotifications.([]Notification) {
-			currentValues := currentNotification.(map[string]interface{})
-			currentValues["level"] = "application"
-			currentValues["type"] = notApp
+		if mapped, ok := sliceOfNotifications.(map[string]interface{}); ok {
+			//for _, currentNotification := range mapped {
+			//currentValues := currentNotification.(map[string]interface{})
+			mapped["level"] = "application"
+			mapped["type"] = notApp
 		}
 	}
 	notificationsMap["application"] = appName
