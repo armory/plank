@@ -20,12 +20,15 @@ import "fmt"
 func (notifications *NotificationsType) FillAppNotificationFields(appName string) {
 	notificationsMap := *notifications
 	for notApp, sliceOfNotifications := range notificationsMap{
-		if mapped, ok := sliceOfNotifications.(map[string]interface{}); ok {
-			//for _, currentNotification := range mapped {
-			//currentValues := currentNotification.(map[string]interface{})
-			mapped["level"] = "application"
-			mapped["type"] = notApp
+		if sliceInterface, ok := sliceOfNotifications.([]interface{}); ok {
+			for _, currentNotification := range sliceInterface {
+				if notificationValues, itsMap := currentNotification.(map[string]interface{}); itsMap{
+					notificationValues["level"] = "application"
+					notificationValues["type"] = notApp
+				}
+			}
 		}
+
 	}
 	notificationsMap["application"] = appName
 }
