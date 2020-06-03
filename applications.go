@@ -44,7 +44,7 @@ type PermissionsType struct {
 
 type Notification struct {
 	When     []string                `json:"when" mapstructure:"when" yaml:"EXECUTE" hcl:"when"`
-	Details  map[string]interface{}
+	//Details  map[string]interface{}
 }
 
 //type Notification struct {
