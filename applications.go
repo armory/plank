@@ -42,19 +42,20 @@ type PermissionsType struct {
 	Execute []string `json:"EXECUTE" mapstructure:"EXECUTE" yaml:"EXECUTE" hcl:"EXECUTE"`
 }
 
-type Notification struct {
-	When     []string                `json:"when" mapstructure:"when" yaml:"EXECUTE" hcl:"when"`
+//type Notification interface {
+
+	//When     []string                `json:"when" mapstructure:"when" yaml:"EXECUTE" hcl:"when"`
 	//Details  map[string]interface{}
-}
+//}
 
 //type Notification struct {
 //	When     []string                `json:"when" mapstructure:"when" yaml:"EXECUTE" hcl:"when"`
 //	Details  map[string]interface{}
 //}
 
-type NotificationsType struct {
-	Notification  map[string][]Notification `json:"disabled" mapstructure:"disabled" yaml:"disabled" hcl:"disabled"`
-}
+//type NotificationsType struct {
+//	Notification  map[string][]Notification `json:"disabled" mapstructure:"disabled" yaml:"disabled" hcl:"disabled"`
+//}
 
 // Application as returned from the Spinnaker API.
 type Application struct {
@@ -64,7 +65,7 @@ type Application struct {
 	User          string             `json:"user,omitempty" mapstructure:"user" yaml:"user,omitempty" hcl:"user,omitempty"`
 	DataSources   *DataSourcesType   `json:"dataSources,omitempty" mapstructure:"dataSources" yaml:"datasources,omitempty" hcl:"datasources,omitempty"`
 	Permissions   *PermissionsType   `json:"permissions,omitempty" mapstructure:"permissions" yaml:"permissions,omitempty" hcl:"permissions,omitempty"`
-	Notifications *NotificationsType `json:"notifications,omitempty" mapstructure:"notifications" yaml:"notifications,omitempty" hcl:"notifications,omitempty"`
+	Notifications *map[string]interface{} `json:"notifications,omitempty" mapstructure:"notifications" yaml:"notifications,omitempty" hcl:"notifications,omitempty"`
 }
 
 // GetApplication returns the Application data struct for the

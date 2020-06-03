@@ -17,6 +17,8 @@ package plank
 
 import (
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
@@ -39,6 +41,50 @@ func TestGetApplication(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, app.Name, "testapp")
 	assert.Equal(t, app.Email, "foo@bar.com")
+}
+
+
+func TestParsingApplication(t *testing.T) {
+	payload := `{
+        "notifications": {
+            "slack": [
+                {
+                    "level": "application",
+                    "when": [
+                        "pipeline.starting",
+                        "pipeline.complete",
+                        "pipeline.failed"
+                    ],
+                    "type": "slack",
+                    "address": "jossuecito-dinghy-pipes"
+                }
+            ],
+            "email": [
+              {
+                  "level": "application",
+                  "when": [
+                      "pipeline.starting"
+                  ],
+                  "type": "email",
+                  "address": "test@test.com",
+                  "cc": "test@test2.com"
+              }
+          ]
+        }
+    }`
+
+	var app Application
+	if err := json.Unmarshal([]byte(payload), &app); err != nil {
+		t.Fail()
+	}
+
+	fmt.Printf("%v", app)
+
+	//c := New(WithClient(client))
+	//app, err := c.GetApplication("foo")
+	//assert.Nil(t, err)
+	//assert.Equal(t, app.Name, "testapp")
+	//assert.Equal(t, app.Email, "foo@bar.com")
 }
 
 func TestCreateApp(t *testing.T) {
