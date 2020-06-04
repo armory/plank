@@ -2,7 +2,7 @@ package plank
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -27,11 +27,15 @@ func TestNotificationsType_FillAppNotificationFields(t *testing.T) {
             ]
         }`
 
+	var expected = `{"application":"test","email":[{"address":"test@test.commmmm","cc":"test@test2.commmmmm","level":"application","type":"email","when":["pipeline.starting"]}],"slack":[{"address":"jossuecito-dinghy-pipes-this-is-good","level":"application","type":"slack","when":["pipeline.failed"]}]}`
+
 	var notification NotificationsType
 	err := json.Unmarshal([]byte(payload), &notification)
 	if err != nil {
 		t.Fail()
 	}
 	notification.FillAppNotificationFields("test")
-	fmt.Sprintf("%v", notification)
+
+	body, err := json.Marshal(notification)
+	assert.Equal(t, string(body), expected)
 }

@@ -28,7 +28,6 @@ func (notifications *NotificationsType) FillAppNotificationFields(appName string
 				}
 			}
 		}
-
 	}
 	notificationsMap["application"] = appName
 }
