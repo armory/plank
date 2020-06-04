@@ -17,6 +17,7 @@ package plank
 
 import (
 	"strings"
+	"sync"
 )
 
 // User is returned by Fiat's /authorize endpoint.
@@ -98,4 +99,126 @@ func (c *Client) ResyncFiat() error {
 
 	var unused interface{}
 	return c.Post(c.URLs["fiat"]+"/forceRefresh/all", ApplicationJson, nil, &unused)
+}
+
+type FiatRole struct {
+	Name string `json:"name"`
+	Source string `json:"source"`
+}
+
+func (c *Client) UserRoles(username string) ([]string, error) {
+	baseUrl := c.URLs["fiat"]
+	var roles []FiatRole
+	if err := c.Get(baseUrl + "/authorize/" + username + "/roles", &roles); err != nil {
+		return nil, err
+	}
+	var names []string
+	for _, r := range roles {
+		names = append(names, r.Name)
+	}
+	return names, nil
+}
+
+// ReadPermissable is an interface for things that should be readable
+type ReadPermissable interface {
+	Name() string
+	Permissions() []string
+}
+
+type PermissionsEvaluator interface {
+	HasReadPermission(user string, rp ReadPermissable) (bool, error)
+}
+
+type FiatClient interface {
+	UserRoles(username string) ([]string, error)
+}
+
+type FiatClientFactory func(opts ...ClientOption) FiatClient
+
+type FiatPermissionEvaluator struct {
+	clientFactory FiatClientFactory
+	userRoleCache sync.Map
+	// orMode is used as a flag for whether permissable objects need all roles or just one
+	// see https://github.com/spinnaker/fiat/blob/87a0d2410244f1a906a3220903aa121ab5042b24/fiat-roles/src/main/java/com/netflix/spinnaker/fiat/config/FiatRoleConfig.java#L28
+	// and https://github.com/spinnaker/fiat/blob/0d58386152ad78234b2554f5efdf12d26b77d57c/fiat-roles/src/main/java/com/netflix/spinnaker/fiat/providers/BaseServiceAccountResourceProvider.java#L36-L40
+	orMode bool
+}
+
+func (f *FiatPermissionEvaluator) HasReadPermission(user string, rp ReadPermissable) (bool, error) {
+	uroles, err := f.userRoles(user)
+	if err != nil {
+		return false, err
+	}
+
+	if f.orMode {
+		// if we have at least 1 role in common, return true
+		for _, p := range rp.Permissions() {
+			if isContained(p, uroles) {
+				return true, nil
+			}
+		}
+		return false, nil
+	}
+
+	for _, p := range rp.Permissions() {
+		// if we detect one role is missing, return false
+		if !isContained(p, uroles) {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
+
+func (f *FiatPermissionEvaluator) userRoles(username string) ([]string, error) {
+	if v, ok := f.userRoleCache.Load(username); ok {
+		return v.([]string), nil
+	}
+
+	// hacky workaround to make up for the fact that i can't pass
+	// custom headers into client.Get
+	// calls to `/authorize/{user}/roles` require that the user
+	// in the path matches the X-Spinnaker-User header
+	// i'm not a huge fan of recreating this client every time
+	c := f.clientFactory(WithFiatUser(username))
+	uroles, err := c.UserRoles(username)
+	if err != nil {
+		return nil, err
+	}
+	// cache result for use later
+	f.userRoleCache.Store(username, uroles)
+	return uroles, nil
+}
+
+func isContained(needle string, haystack []string) bool {
+	for _, h := range haystack {
+		if h == needle {
+			return true
+		}
+	}
+	return false
+}
+
+func NewFiatPermissionEvaluator(opts ...PermissionEvalautorOpt) *FiatPermissionEvaluator {
+	defaultClientFactory := func(opts ...ClientOption) FiatClient {
+		return New(opts...)
+	}
+	fpe := &FiatPermissionEvaluator{
+		clientFactory: defaultClientFactory,
+		orMode: false,
+	}
+
+	for _, opt := range opts {
+		opt(fpe)
+	}
+	return fpe
+}
+
+type PermissionEvalautorOpt func(fpe *FiatPermissionEvaluator)
+
+func WithOrMode(orMode bool) PermissionEvalautorOpt {
+	return func(fpe *FiatPermissionEvaluator) {
+		fpe.orMode = orMode
+	}
 }

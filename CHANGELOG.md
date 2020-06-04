@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 
+- FiatPermissionsEvaluator for determining authorization based on User roles with Fiat
+
+```go
+// example usage
+objs := []Foo{
+	{name: "foo1", permisisons: []string{"engineering", "core-eng"}},
+	{name: "foo2", permisisons: []string{"ico-team", "spin-team"}},
+	{name: "foo3", permisisons: []string{"engineering"}},
+}
+
+evaluator := plank.NewFiatPermissionEvaluator(plank.WithOrMode(true))
+
+user := "ethanfrogers"
+
+for _, o := range objs {
+	allowed, err := evaluator.HasReadPermission(user, o)
+	if err != nil {
+		fmt.Printf("error encountered: %s", err.Error())
+		os.Exit(1)
+	}
+	if allowed {
+		fmt.Printf("obj %s allowed\n", o.Name())
+	}
+}
+```
 ### Changed
 
 ### Fixed
