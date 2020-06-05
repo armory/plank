@@ -55,7 +55,7 @@ type Application struct {
 	User          string             `json:"user,omitempty" mapstructure:"user" yaml:"user,omitempty" hcl:"user,omitempty"`
 	DataSources   *DataSourcesType   `json:"dataSources,omitempty" mapstructure:"dataSources" yaml:"datasources,omitempty" hcl:"datasources,omitempty"`
 	Permissions   *PermissionsType   `json:"permissions,omitempty" mapstructure:"permissions" yaml:"permissions,omitempty" hcl:"permissions,omitempty"`
-	Notifications NotificationsType  `json:"notifications" mapstructure:"notifications" yaml:"notifications" hcl:"notifications"`
+	Notifications NotificationsType  `json:"notifications,omitempty" mapstructure:"notifications" yaml:"notifications,omitempty" hcl:"notifications,omitempty"`
 }
 
 // GetApplication returns the Application data struct for the
