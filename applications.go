@@ -42,21 +42,6 @@ type PermissionsType struct {
 	Execute []string `json:"EXECUTE" mapstructure:"EXECUTE" yaml:"EXECUTE" hcl:"EXECUTE"`
 }
 
-//type Notification interface {
-
-	//When     []string                `json:"when" mapstructure:"when" yaml:"EXECUTE" hcl:"when"`
-	//Details  map[string]interface{}
-//}
-
-//type Notification struct {
-//	When     []string                `json:"when" mapstructure:"when" yaml:"EXECUTE" hcl:"when"`
-//	Details  map[string]interface{}
-//}
-
-//type NotificationsType struct {
-//	Notification  map[string][]Notification `json:"disabled" mapstructure:"disabled" yaml:"disabled" hcl:"disabled"`
-//}
-
 type NotificationsType map[string]Notification
 
 type Notification interface {
