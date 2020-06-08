@@ -16,6 +16,7 @@
 package plank
 
 import (
+	"fmt"
 	"strings"
 	"sync"
 )
@@ -121,8 +122,8 @@ func (c *Client) UserRoles(username string) ([]string, error) {
 
 // ReadPermissable is an interface for things that should be readable
 type ReadPermissable interface {
-	Name() string
-	Permissions() []string
+	GetName() string
+	GetPermissions() []string
 }
 
 type PermissionsEvaluator interface {
@@ -136,6 +137,7 @@ type FiatClient interface {
 type FiatClientFactory func(opts ...ClientOption) FiatClient
 
 type FiatPermissionEvaluator struct {
+	clientOps []ClientOption
 	clientFactory FiatClientFactory
 	userRoleCache sync.Map
 	// orMode is used as a flag for whether permissable objects need all roles or just one
@@ -145,6 +147,10 @@ type FiatPermissionEvaluator struct {
 }
 
 func (f *FiatPermissionEvaluator) HasReadPermission(user string, rp ReadPermissable) (bool, error) {
+	if rp == nil {
+		return false, fmt.Errorf("object for permissions check should not be nil")
+	}
+
 	uroles, err := f.userRoles(user)
 	if err != nil {
 		return false, err
@@ -152,7 +158,7 @@ func (f *FiatPermissionEvaluator) HasReadPermission(user string, rp ReadPermissa
 
 	if f.orMode {
 		// if we have at least 1 role in common, return true
-		for _, p := range rp.Permissions() {
+		for _, p := range rp.GetPermissions() {
 			if isContained(p, uroles) {
 				return true, nil
 			}
@@ -160,7 +166,7 @@ func (f *FiatPermissionEvaluator) HasReadPermission(user string, rp ReadPermissa
 		return false, nil
 	}
 
-	for _, p := range rp.Permissions() {
+	for _, p := range rp.GetPermissions() {
 		// if we detect one role is missing, return false
 		if !isContained(p, uroles) {
 			return false, nil
@@ -181,7 +187,8 @@ func (f *FiatPermissionEvaluator) userRoles(username string) ([]string, error) {
 	// calls to `/authorize/{user}/roles` require that the user
 	// in the path matches the X-Spinnaker-User header
 	// i'm not a huge fan of recreating this client every time
-	c := f.clientFactory(WithFiatUser(username))
+	opts := append([]ClientOption{WithFiatUser(username)}, f.clientOps...)
+	c := f.clientFactory(opts...)
 	uroles, err := c.UserRoles(username)
 	if err != nil {
 		return nil, err
@@ -200,7 +207,7 @@ func isContained(needle string, haystack []string) bool {
 	return false
 }
 
-func NewFiatPermissionEvaluator(opts ...PermissionEvalautorOpt) *FiatPermissionEvaluator {
+func NewFiatPermissionEvaluator(opts ...PermissionEvaluatorOpt) *FiatPermissionEvaluator {
 	defaultClientFactory := func(opts ...ClientOption) FiatClient {
 		return New(opts...)
 	}
@@ -215,10 +222,16 @@ func NewFiatPermissionEvaluator(opts ...PermissionEvalautorOpt) *FiatPermissionE
 	return fpe
 }
 
-type PermissionEvalautorOpt func(fpe *FiatPermissionEvaluator)
+type PermissionEvaluatorOpt func(fpe *FiatPermissionEvaluator)
 
-func WithOrMode(orMode bool) PermissionEvalautorOpt {
+func WithOrMode(orMode bool) PermissionEvaluatorOpt {
 	return func(fpe *FiatPermissionEvaluator) {
 		fpe.orMode = orMode
+	}
+}
+
+func WithClientOptions(opts ...ClientOption) PermissionEvaluatorOpt {
+	return func(fpe *FiatPermissionEvaluator) {
+		fpe.clientOps = opts
 	}
 }

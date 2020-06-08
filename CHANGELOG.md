@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Improved Fiat client interface
+    - Changed ReadPermissable methods to getters
+    - Added support for passing in plank client options
 
 ### Fixed
 
