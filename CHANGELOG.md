@@ -7,13 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Improved Fiat client interface
-    - Changed ReadPermissable methods to getters
-    - Added support for passing in plank client options
 
 ### Fixed
 
 ### Removed
+
+## [3.3.0] 2020-06-08
+
+### Added
+- Improved Fiat client interface
+    - Changed ReadPermissable methods to getters
+    - Added support for passing in plank client options
 
 ## [3.2.0] 2020-06-04
 ### Added
@@ -127,6 +131,7 @@ paylods from 4xx and 5xx responses in the `plank.FailedResponse` struct.
   struct makes sense for the context.
 
 [Unreleased]: https://github.com/armory/plank/compare/v1.3.0...HEAD
+[3.3.0]: https://github.com/armory/plank/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/armory/plank/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/armory/plank/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/armory/plank/compare/v2.1.0...v3.0.0
