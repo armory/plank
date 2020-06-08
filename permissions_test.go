@@ -113,7 +113,7 @@ type mockPermissable struct {
 	ReadPermissable
 }
 
-func (m mockPermissable) Permissions() []string {
+func (m mockPermissable) GetPermissions() []string {
 	return m.permissions
 }
 
