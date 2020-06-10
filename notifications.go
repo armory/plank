@@ -15,7 +15,10 @@
  */
 package plank
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 func (notifications *NotificationsType) FillAppNotificationFields(appName string) {
 	notificationsMap := *notifications
@@ -31,6 +34,19 @@ func (notifications *NotificationsType) FillAppNotificationFields(appName string
 	}
 	notificationsMap["application"] = appName
 }
+
+func (notifications *NotificationsType) ValidateAppNotification() error {
+	notificationsMap := *notifications
+	for key, sliceOfNotifications := range notificationsMap{
+		if key != "application" {
+			if _, ok := sliceOfNotifications.([]interface{}); !ok {
+				return errors.New("application notifications format is invalid.")
+			}
+		}
+	}
+	return nil
+}
+
 
 
 // GetApplicationNotifications returns all application notifications

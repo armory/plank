@@ -39,3 +39,68 @@ func TestNotificationsType_FillAppNotificationFields(t *testing.T) {
 	body, err := json.Marshal(notification)
 	assert.Equal(t, string(body), expected)
 }
+
+func TestNotificationsType_ValidateAppNotification(t *testing.T) {
+	var payload = `{
+            "slack": [
+                {
+                    "when": [
+                        "pipeline.failed"
+                    ],
+                    "address": "jossuecito-dinghy-pipes-this-is-good"
+                }
+            ],
+            "email": [
+                {
+                    "when": [
+                        "pipeline.starting"
+                    ],
+                    "address": "test@test.commmmm",
+                    "cc": "test@test2.commmmmm"
+                }
+            ],
+            "application" : "test"
+        }`
+
+	var notification NotificationsType
+	err := json.Unmarshal([]byte(payload), &notification)
+	if err != nil {
+		t.Fail()
+	}
+	err = notification.ValidateAppNotification()
+	if err != nil {
+		t.Fail()
+	}
+}
+
+func TestNotificationsType_ValidateAppNotification_Fail(t *testing.T) {
+	var payload = `{
+            "slack": [
+                {
+                    "when": [
+                        "pipeline.failed"
+                    ],
+                    "address": "jossuecito-dinghy-pipes-this-is-good"
+                }
+            ],
+            "email": 
+                {
+                    "when": [
+                        "pipeline.starting"
+                    ],
+                    "address": "test@test.commmmm",
+                    "cc": "test@test2.commmmmm"
+                },
+            "application" : "test"
+        }`
+
+	var notification NotificationsType
+	err := json.Unmarshal([]byte(payload), &notification)
+	if err != nil {
+		t.Fail()
+	}
+	err = notification.ValidateAppNotification()
+	if err == nil {
+		t.Fail()
+	}
+}
