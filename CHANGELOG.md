@@ -13,6 +13,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [3.4.0] 2020-06-10
+### Added
+- Added support for Application Notifications with object `plank.NotificationsType` 
+  - `plank.UpdateApplicationNotifications` to create, update app notifications 
+  - `plank.GetApplicationNotifications` to read app notifications
+  - `plank.FillAppNotificationFields` to fill default values for them
+  - `plank.ValidateAppNotification` to validate struct
+
+### Changed
+
+### Fixed
+
+### Removed
+
 ## [3.1.0] 2020-05-25
 ### Added
 
@@ -96,6 +110,7 @@ paylods from 4xx and 5xx responses in the `plank.FailedResponse` struct.
   struct makes sense for the context.
 
 [Unreleased]: https://github.com/armory/plank/compare/v1.3.0...HEAD
+[3.2.0]: https://github.com/armory/plank/compare/v3.3.0...v3.4.0
 [3.1.0]: https://github.com/armory/plank/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/armory/plank/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/armory/plank/compare/v2.0.0...v2.1.0

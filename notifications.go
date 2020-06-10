@@ -47,8 +47,6 @@ func (notifications *NotificationsType) ValidateAppNotification() error {
 	return nil
 }
 
-
-
 // GetApplicationNotifications returns all application notifications
 func (c *Client) GetApplicationNotifications(appName string) (*NotificationsType, error) {
 	var notifications NotificationsType
