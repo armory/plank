@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Armory, Inc.
+ * Copyright 2020 Armory, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,9 @@ func (c *Client) GetApplicationNotifications(appName string) (*NotificationsType
 func (c *Client) UpdateApplicationNotifications(notifications NotificationsType, appName string) error {
 	if notifications == nil {
 		notifications = make(NotificationsType)
+	}
+	if errval := notifications.ValidateAppNotification(); errval != nil {
+		return fmt.Errorf("error validating application notifications format %q: %w", notifications, errval)
 	}
 	notifications.FillAppNotificationFields(appName)
 	var unused interface{}

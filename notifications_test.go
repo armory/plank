@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 Armory, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package plank
 
 import (
@@ -101,6 +117,14 @@ func TestNotificationsType_ValidateAppNotification_Fail(t *testing.T) {
 	}
 	err = notification.ValidateAppNotification()
 	if err == nil {
+		t.Fail()
+	}
+}
+
+func TestNotificationsType_ValidateAppNotification_nil(t *testing.T) {
+	var notification NotificationsType
+	err := notification.ValidateAppNotification()
+	if err != nil {
 		t.Fail()
 	}
 }
