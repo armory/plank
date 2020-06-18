@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Fixed
+
+### Removed
+
+## [3.4.2] 2020-06-18
+
+### Added
+
+### Fixed
 - Fixed nil check for `ReadPermissable` interface
 
 ### Removed
@@ -155,6 +163,7 @@ paylods from 4xx and 5xx responses in the `plank.FailedResponse` struct.
   struct makes sense for the context.
 
 [Unreleased]: https://github.com/armory/plank/compare/v1.3.0...HEAD
+[3.4.2]: https://github.com/armory/plank/compare/v3.4.1...v3.4.2
 [3.4.1]: https://github.com/armory/plank/compare/v3.4.0...v3.4.1
 [3.4.0]: https://github.com/armory/plank/compare/v3.3.0...v3.4.0
 [3.3.0]: https://github.com/armory/plank/compare/v3.2.0...v3.3.0
