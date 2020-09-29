@@ -44,8 +44,9 @@ type Pipeline struct {
 }
 
 type PipelineLockType struct {
-	UI            bool `json:"ui" yaml:"ui" hcl:"ui"`
-	AllowUnlockUI bool `json:"allowUnlockUi" yaml:"allowUnlockUi" hcl:"allowUnlockUi"`
+	UI            bool 		`json:"ui" yaml:"ui" hcl:"ui"`
+	AllowUnlockUI bool 		`json:"allowUnlockUi" yaml:"allowUnlockUi" hcl:"allowUnlockUi"`
+	Description   string 	`json:"description" yaml:"description" hcl:"description"`
 }
 
 func (p *Pipeline) Lock() *Pipeline {
