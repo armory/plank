@@ -85,8 +85,23 @@ func (c *Client) UpdateApplication(app Application) error {
 	if err := c.PatchWithRetry(fmt.Sprintf("%s/v2/applications/%s", c.URLs["front50"], app.Name), ApplicationJson, app, &unused); err != nil {
 		return fmt.Errorf("could not update application %q: %w", app.Name, err)
 	}
+	if err := c.UpdatePermissions(app.Name, *app.Permissions); err != nil {
+		// UpdatePermissions will print in the log if something failed
+		return err
+	}
+
 	return nil
 }
+
+// UpdateApplication updates an application in the configured front50 store.
+func (c *Client) UpdatePermissions(appName string, permissions PermissionsType) error {
+	var unused interface{}
+	if err := c.PutWithRetry(fmt.Sprintf("%s/permissions/applications/%s", c.URLs["front50"], appName), ApplicationJson, permissions, &unused); err != nil {
+		return fmt.Errorf("could not update application permissions %q: %w", appName, err)
+	}
+	return nil
+}
+
 
 type createApplicationTask struct {
 	Application Application `json:"application" mapstructure:"application" yaml:"application" hcl:"application"`
