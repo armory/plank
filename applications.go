@@ -42,6 +42,7 @@ type PermissionsType struct {
 	Execute []string `json:"EXECUTE" mapstructure:"EXECUTE" yaml:"EXECUTE" hcl:"EXECUTE"`
 }
 
+// Front50 needs this struct to update permissions
 type Front50Permissions struct {
 	Name          string             `json:"name" mapstructure:"name" yaml:"name" hcl:"name"`
 	Permissions   *PermissionsType   `json:"permissions,omitempty" mapstructure:"permissions" yaml:"permissions,omitempty" hcl:"permissions,omitempty"`
@@ -98,7 +99,7 @@ func (c *Client) UpdateApplication(app Application) error {
 	return nil
 }
 
-// UpdateApplication updates an application in the configured front50 store.
+// UpdatePermissions updates an application permissions in the configured front50 store.
 func (c *Client) UpdatePermissions(appName string, permissions *PermissionsType) error {
 	var unused interface{}
 	var permissionsfront50 = Front50Permissions{
