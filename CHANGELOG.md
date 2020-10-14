@@ -15,9 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [3.4.3] 2020-1014
 
 ### Added
+- Created method `UpdatePermissions` that is used by `UpdateApplication`
 
 ### Fixed
-- Fixed a bug in which application permissions were not updating
+- Fixed a bug in which application permissions were not updating in `UpdateApplication`
 
 ### Removed
 
