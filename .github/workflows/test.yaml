@@ -19,7 +19,7 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v2
     - name: Test Plank
-      run: go test -v -mod=vendor -race -covermode atomic -coverprofile=profile.cov ./... 
+      run: go test -v -race -covermode atomic -coverprofile=profile.cov ./... 
     - name: Send Coverage
       uses: shogo82148/actions-goveralls@v1
       with:
