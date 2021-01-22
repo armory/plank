@@ -18,7 +18,6 @@ package plank
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
@@ -79,7 +78,7 @@ func TestApplicationMarshalJSON (t *testing.T){
 		Name:        "appname",
 		Email:       "useremail",
 		Description: "appdescription",
-		Metadata: map[string]interface{}{"testkey" : "testval", "testkey2" : "testval2"},
+		AppMetadata: map[string]interface{}{"testkey" : "testval", "testkey2" : "testval2"},
 	}
 	jsonbytes, err := json.Marshal(app)
 	if err != nil {
@@ -92,5 +91,4 @@ func TestApplicationMarshalJSON (t *testing.T){
 	if _, ok := validate["testkey"]; !ok{
 		t.Fail()
 	}
-	fmt.Printf(string(jsonbytes))
 }
