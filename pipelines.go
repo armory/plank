@@ -123,23 +123,23 @@ func (c *Client) pipelinesURL() string {
 
 // Get returns an array of all the Spinnaker pipelines
 // configured for app
-func (c *Client) GetPipelines(app string) ([]Pipeline, error) {
+func (c *Client) GetPipelines(app, traceparent string) ([]Pipeline, error) {
 	var pipelines []Pipeline
-	if err := c.GetWithRetry(c.pipelinesURL()+"/"+app, &pipelines); err != nil {
+	if err := c.GetWithRetry(c.pipelinesURL()+"/"+app, traceparent, &pipelines); err != nil {
 		return nil, fmt.Errorf("could not get pipelines for %s - %v", app, err)
 	}
 	return pipelines, nil
 }
 
 // UpsertPipeline creates/updates a pipeline defined in the struct argument.
-func (c *Client) UpsertPipeline(p Pipeline, id string) error {
+func (c *Client) UpsertPipeline(p Pipeline, id, traceparent string) error {
 	var unused interface{}
 	if id == "" {
-		if err := c.PostWithRetry(c.pipelinesURL(), ApplicationJson, p, &unused); err != nil {
+		if err := c.PostWithRetry(c.pipelinesURL(), traceparent, ApplicationJson, p, &unused); err != nil {
 			return fmt.Errorf("could not create pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
 		}
 	} else {
-		if err := c.PutWithRetry(fmt.Sprintf("%s/%s", c.pipelinesURL(), id), ApplicationJson, p, &unused); err != nil {
+		if err := c.PutWithRetry(fmt.Sprintf("%s/%s", c.pipelinesURL(), id), traceparent, ApplicationJson, p, &unused); err != nil {
 			return fmt.Errorf("could not update pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
 		}
 	}
@@ -147,14 +147,14 @@ func (c *Client) UpsertPipeline(p Pipeline, id string) error {
 }
 
 // DeletePipeline does what it says.
-func (c *Client) DeletePipeline(p Pipeline) error {
+func (c *Client) DeletePipeline(p Pipeline, traceparent string) error {
 	return c.DeleteWithRetry(
-		fmt.Sprintf("%s/%s/%s", c.pipelinesURL(), p.Application, p.Name))
+		fmt.Sprintf("%s/%s/%s", c.pipelinesURL(), p.Application, p.Name), traceparent)
 }
 
-func (c *Client) DeletePipelineByName(app, pipeline string) error {
+func (c *Client) DeletePipelineByName(app, pipeline, traceparent string) error {
 	return c.DeleteWithRetry(
-		fmt.Sprintf("%s/%s/%s", c.pipelinesURL(), app, pipeline))
+		fmt.Sprintf("%s/%s/%s", c.pipelinesURL(), app, pipeline), traceparent)
 }
 
 type pipelineExecution struct {
@@ -170,7 +170,7 @@ type PipelineRef struct {
 }
 
 // Execute a pipeline by application and pipeline.
-func (c *Client) Execute(application, pipeline string) (*PipelineRef, error) {
+func (c *Client) Execute(application, pipeline, traceparent string) (*PipelineRef, error) {
 	e := pipelineExecution{
 		Enabled: true,
 		Type:    "manual",
@@ -180,6 +180,7 @@ func (c *Client) Execute(application, pipeline string) (*PipelineRef, error) {
 	var ref PipelineRef
 	if err := c.PostWithRetry(
 		fmt.Sprintf("%s/%s/%s", c.pipelinesURL(), application, pipeline),
+		traceparent,
 		ApplicationJson, e, &ref); err != nil {
 		return nil, err
 	}

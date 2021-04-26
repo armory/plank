@@ -53,7 +53,7 @@ func TestGet(t *testing.T) {
 	c := New(WithClient(client))
 	assert.NotNil(t, c)
 	val := map[string]string{}
-	err := c.Get("/", &val)
+	err := c.Get("/", "", &val)
 	assert.Nil(t, err)
 	assert.Equal(t, "value1", val["key1"])
 }

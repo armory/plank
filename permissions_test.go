@@ -37,7 +37,7 @@ func TestGetUser(t *testing.T) {
 	})
 
 	c := New(WithClient(client))
-	user, err := c.GetUser("foo")
+	user, err := c.GetUser("foo", "")
 	assert.Nil(t, err)
 	assert.Equal(t, user.Name, "testapp")
 	assert.True(t, user.IsAdmin())
@@ -92,7 +92,7 @@ func TestClient_UserRoles(t *testing.T) {
 
 	for testName, c := range cases {
 		t.Run(testName, func(t *testing.T) {
-			out, err := c.c.UserRoles(c.username)
+			out, err := c.c.UserRoles(c.username, "")
 			assert.Equal(t, c.expectedOutput, out)
 			assert.Nil(t, err)
 		})
@@ -104,7 +104,7 @@ type mockFiatClient struct {
 	errReturn error
 }
 
-func (m mockFiatClient) UserRoles(username string) ([]string, error) {
+func (m mockFiatClient) UserRoles(username, traceparent string) ([]string, error) {
 	return m.rolesReturn, m.errReturn
 }
 
@@ -194,7 +194,7 @@ func TestFiatPermissionEvaluator_HasReadPermission(t *testing.T) {
 				return c.mockClient
 			}
 			evaluator := &FiatPermissionEvaluator{orMode: c.orMode, clientFactory: cfactory}
-			res, _ := evaluator.HasReadPermission("test", c.permissable)
+			res, _ := evaluator.HasReadPermission("test", "", c.permissable)
 			assert.Equal(t, c.expectedResult, res)
 		})
 	}

@@ -47,16 +47,16 @@ func (notifications *NotificationsType) ValidateAppNotification() error {
 }
 
 // GetApplicationNotifications returns all application notifications
-func (c *Client) GetApplicationNotifications(appName string) (*NotificationsType, error) {
+func (c *Client) GetApplicationNotifications(appName, traceparent string) (*NotificationsType, error) {
 	var notifications NotificationsType
-	if err := c.Get(c.URLs["front50"]+"/notifications/application/"+appName, &notifications); err != nil {
+	if err := c.Get(c.URLs["front50"]+"/notifications/application/"+appName, traceparent, &notifications); err != nil {
 		return nil, err
 	}
 	return &notifications, nil
 }
 
 // UpdateApplicationNotifications updates notifications in the configured front50 store.
-func (c *Client) UpdateApplicationNotifications(notifications NotificationsType, appName string) error {
+func (c *Client) UpdateApplicationNotifications(notifications NotificationsType, appName, traceparent string) error {
 	if notifications == nil {
 		notifications = make(NotificationsType)
 	}
@@ -65,7 +65,7 @@ func (c *Client) UpdateApplicationNotifications(notifications NotificationsType,
 	}
 	notifications.FillAppNotificationFields(appName)
 	var unused interface{}
-	if err := c.Post(fmt.Sprintf("%s/notifications/application/%s", c.URLs["front50"], appName), ApplicationJson, notifications , &unused); err != nil {
+	if err := c.Post(fmt.Sprintf("%s/notifications/application/%s", c.URLs["front50"], appName),traceparent, ApplicationJson, notifications , &unused); err != nil {
 		return fmt.Errorf("could not update notifications %q: %w", notifications, err)
 	}
 	return nil
