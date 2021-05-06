@@ -100,7 +100,12 @@ func (c *Client) ResyncFiat(traceparent string) error {
 	}
 
 	var unused interface{}
-	return c.Post(c.URLs["fiat"]+"/forceRefresh/all",traceparent, ApplicationJson, nil, &unused)
+	if c.UseGate {
+		return c.Post(c.URLs["gate"]+"/plank/forceRefresh/all",traceparent, ApplicationJson, nil, &unused)
+	} else {
+		return c.Post(c.URLs["fiat"]+"/forceRefresh/all",traceparent, ApplicationJson, nil, &unused)
+	}
+
 }
 
 type FiatRole struct {
