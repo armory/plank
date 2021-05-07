@@ -80,8 +80,14 @@ func (a Application) MarshalJSON() ([]byte, error) {
 // given application name.
 func (c *Client) GetApplication(name, traceparent string) (*Application, error) {
 	var app Application
-	if err := c.Get(c.URLs["front50"]+"/v2/applications/"+name, traceparent, &app); err != nil {
-		return nil, err
+	if c.UseGate {
+		if err := c.Get(c.URLs["gate"]+"/plank/v2/applications/"+name, traceparent, &app); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := c.Get(c.URLs["front50"]+"/v2/applications/"+name, traceparent, &app); err != nil {
+			return nil, err
+		}
 	}
 	return &app, nil
 }
