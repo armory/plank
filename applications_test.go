@@ -42,6 +42,25 @@ func TestGetApplication(t *testing.T) {
 	assert.Equal(t, app.Email, "foo@bar.com")
 }
 
+func TestGetApplicationWithGate(t *testing.T) {
+	payload := `{"name":"testapp","email":"foo@bar.com"}`
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		assert.Equal(t, req.URL.String(), "http://localhost:8084/plank/v2/applications/foo")
+		return &http.Response{
+			StatusCode: 200,
+			Body:       ioutil.NopCloser(bytes.NewBufferString(payload)),
+			Header:     make(http.Header),
+		}
+	})
+
+	c := New(WithClient(client))
+	c.UseGateEndpoints()
+	app, err := c.GetApplication("foo", "")
+	assert.Nil(t, err)
+	assert.Equal(t, app.Name, "testapp")
+	assert.Equal(t, app.Email, "foo@bar.com")
+}
+
 func TestCreateApp(t *testing.T) {
 	postPayload := `{"ref":"/refstring"}`
 	pollTaskPayload := `{"id":"foo","status":"sure","endTime":42}`
@@ -68,6 +87,37 @@ func TestCreateApp(t *testing.T) {
 	})
 
 	c := New(WithClient(client))
+	err := c.CreateApplication(&Application{Name: "foo", Email: "Bar"}, "")
+	assert.Nil(t, err)
+}
+
+func TestCreateAppWithGate(t *testing.T) {
+	postPayload := `{"ref":"refstring"}`
+	pollTaskPayload := `{"id":"foo","status":"sure","endTime":42}`
+	appPayload := `{"name":"testapp","email":"foo@bar.com"}`
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		var payload string
+		switch req.URL.String() {
+		case "http://localhost:8084/plank/ops":
+			assert.Equal(t, req.Method, "POST")
+			payload = postPayload
+		case "http://localhost:8084/plank/refstring":
+			assert.Equal(t, req.Method, "GET")
+			payload = pollTaskPayload
+		case "http://localhost:8084/plank/v2/applications/foo":
+			payload = appPayload
+		default:
+			assert.Fail(t, "Unexpected URL requested: "+req.URL.String())
+		}
+		return &http.Response{
+			StatusCode: 200,
+			Body:       ioutil.NopCloser(bytes.NewBufferString(payload)),
+			Header:     make(http.Header),
+		}
+	})
+
+	c := New(WithClient(client))
+	c.UseGateEndpoints()
 	err := c.CreateApplication(&Application{Name: "foo", Email: "Bar"}, "")
 	assert.Nil(t, err)
 }

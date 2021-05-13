@@ -80,8 +80,14 @@ func (a Application) MarshalJSON() ([]byte, error) {
 // given application name.
 func (c *Client) GetApplication(name, traceparent string) (*Application, error) {
 	var app Application
-	if err := c.Get(c.URLs["front50"]+"/v2/applications/"+name, traceparent, &app); err != nil {
-		return nil, err
+	if c.UseGate {
+		if err := c.Get(c.URLs["gate"]+"/plank/v2/applications/"+name, traceparent, &app); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := c.Get(c.URLs["front50"]+"/v2/applications/"+name, traceparent, &app); err != nil {
+			return nil, err
+		}
 	}
 	return &app, nil
 }
@@ -89,8 +95,14 @@ func (c *Client) GetApplication(name, traceparent string) (*Application, error) 
 // GetApplications returns all applications (you can see, at least)
 func (c *Client) GetApplications(traceparent string) (*[]Application, error) {
 	var apps []Application
-	if err := c.Get(c.URLs["front50"]+"/v2/applications", traceparent, &apps); err != nil {
-		return nil, err
+	if c.UseGate {
+		if err := c.Get(c.URLs["gate"]+"/plank/v2/applications", traceparent, &apps); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := c.Get(c.URLs["front50"]+"/v2/applications", traceparent, &apps); err != nil {
+			return nil, err
+		}
 	}
 	return &apps, nil
 }
@@ -103,9 +115,16 @@ func (c *Client) DeleteApplication(name, traceparent string) error {
 // UpdateApplication updates an application in the configured front50 store.
 func (c *Client) UpdateApplication(app Application, traceparent string) error {
 	var unused interface{}
-	if err := c.PatchWithRetry(fmt.Sprintf("%s/v2/applications/%s", c.URLs["front50"], app.Name),traceparent, ApplicationJson, app, &unused); err != nil {
-		return fmt.Errorf("could not update application %q: %w", app.Name, err)
+	if c.UseGate {
+		if err := c.PatchWithRetry(fmt.Sprintf("%s/plank/v2/applications/%s", c.URLs["gate"], app.Name),traceparent, ApplicationJson, app, &unused); err != nil {
+			return fmt.Errorf("could not update application %q: %w", app.Name, err)
+		}
+	} else {
+		if err := c.PatchWithRetry(fmt.Sprintf("%s/v2/applications/%s", c.URLs["front50"], app.Name),traceparent, ApplicationJson, app, &unused); err != nil {
+			return fmt.Errorf("could not update application %q: %w", app.Name, err)
+		}
 	}
+
 	if err := c.UpdatePermissions(app.Name, traceparent, app.Permissions); err != nil {
 		// UpdatePermissions will print in the log if something failed
 		return err

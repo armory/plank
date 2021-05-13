@@ -52,7 +52,11 @@ func (c *Client) PollTaskStatus(refURL, traceparent string) (*ExecutionStatusRes
 
 	for range t.C {
 		var body ExecutionStatusResponse
-		c.Get(c.URLs["orca"]+refURL, "", &body)
+		if c.UseGate {
+			c.Get(c.URLs["gate"]+"/plank/"+refURL, "", &body)
+		} else {
+			c.Get(c.URLs["orca"]+refURL, "", &body)
+		}
 		if body.EndTime > 0 {
 			return &body, nil
 		}
@@ -69,8 +73,14 @@ func (c *Client) PollTaskStatus(refURL, traceparent string) (*ExecutionStatusRes
 func (c *Client) CreateTask(app, desc, traceparent string, payload interface{}) (*TaskRefResponse, error) {
 	task := Task{Application: app, Description: desc, Job: []interface{}{payload}}
 	var ref TaskRefResponse
-	if err := c.Post(c.URLs["orca"]+"/ops",traceparent, ApplicationContextJson, task, &ref); err != nil {
-		return nil, err
+	if c.UseGate {
+		if err := c.Post(c.URLs["gate"]+"/plank/ops",traceparent, ApplicationContextJson, task, &ref); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := c.Post(c.URLs["orca"]+"/ops",traceparent, ApplicationContextJson, task, &ref); err != nil {
+			return nil, err
+		}
 	}
 	return &ref, nil
 }

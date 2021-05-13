@@ -53,6 +53,7 @@ type Client struct {
 	URLs            map[string]string
 	FiatUser        string
 	ArmoryEndpoints bool
+	UseGate         bool
 }
 
 type ContentType string
@@ -128,6 +129,7 @@ func New(opts ...ClientOption) *Client {
 		retryIncrement: 100,
 		maxRetry:       20,
 		URLs:           make(map[string]string),
+		UseGate:        false,
 	}
 	// Have to manually copy the DefaultURLs map because otherwise any changes
 	// made to this copy will modify the global.  I can't believe I have to
@@ -309,4 +311,11 @@ func (c *Client) EnableArmoryEndpoints() {
 
 func (c *Client) DisableARmoryEndpoints() {
 	c.ArmoryEndpoints = false
+}
+
+func (c *Client) UseGateEndpoints() {
+	c.UseGate = true
+}
+func (c *Client) UseServiceEndpoints() {
+	c.UseGate = false
 }

@@ -41,6 +41,122 @@ func TestGetPipelines(t *testing.T) {
 	assert.Equal(t, len(val), 0) // Should get 0 pipelines back.
 }
 
+func TestGetPipelinesWithGate(t *testing.T) {
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		assert.Equal(t, req.URL.String(), "http://localhost:8084/plank/pipelines/myapp")
+		return &http.Response{
+			StatusCode: 200,
+			Body:       ioutil.NopCloser(bytes.NewBufferString("[]")),
+			Header:     make(http.Header),
+		}
+	})
+
+	c := New(WithClient(client))
+	c.UseGateEndpoints()
+	val, err := c.GetPipelines("myapp", "")
+	assert.Nil(t, err)
+	assert.Equal(t, len(val), 0) // Should get 0 pipelines back.
+}
+
+func TestUpsertPipelinesNoIdWithGate(t *testing.T) {
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		assert.Equal(t, req.URL.String(), "http://localhost:8084/plank/pipelines")
+		assert.Equal(t, req.Method, "POST")
+		return &http.Response{
+			StatusCode: 200,
+			Body:       ioutil.NopCloser(bytes.NewBufferString("[]")),
+			Header:     make(http.Header),
+		}
+	})
+
+	c := New(WithClient(client))
+	c.UseGateEndpoints()
+	err := c.UpsertPipeline(Pipeline{},"", "")
+	assert.Nil(t, err)
+}
+
+func TestUpsertPipelinesWithGate(t *testing.T) {
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		assert.Equal(t, req.URL.String(), "http://localhost:8084/plank/pipelines/Test")
+		assert.Equal(t, req.Method, "PUT")
+		return &http.Response{
+			StatusCode: 200,
+			Body:       ioutil.NopCloser(bytes.NewBufferString("[]")),
+			Header:     make(http.Header),
+		}
+	})
+
+	c := New(WithClient(client))
+	c.UseGateEndpoints()
+	err := c.UpsertPipeline(Pipeline{},"Test", "")
+	assert.Nil(t, err)
+}
+
+func TestUpsertPipelines(t *testing.T) {
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		assert.Equal(t, req.URL.String(), "http://localhost:8080/pipelines/Test")
+		assert.Equal(t, req.Method, "PUT")
+		return &http.Response{
+			StatusCode: 200,
+			Body:       ioutil.NopCloser(bytes.NewBufferString("[]")),
+			Header:     make(http.Header),
+		}
+	})
+
+	c := New(WithClient(client))
+	err := c.UpsertPipeline(Pipeline{},"Test", "")
+	assert.Nil(t, err)
+}
+
+func TestUpsertPipelinesNoId(t *testing.T) {
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		assert.Equal(t, req.URL.String(), "http://localhost:8080/pipelines")
+		assert.Equal(t, req.Method, "POST")
+		return &http.Response{
+			StatusCode: 200,
+			Body:       ioutil.NopCloser(bytes.NewBufferString("[]")),
+			Header:     make(http.Header),
+		}
+	})
+
+	c := New(WithClient(client))
+	err := c.UpsertPipeline(Pipeline{},"", "")
+	assert.Nil(t, err)
+}
+
+func TestDeletePipelines(t *testing.T) {
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		assert.Equal(t, req.URL.String(), "http://localhost:8080/pipelines/test-App/appName")
+		assert.Equal(t, req.Method, "DELETE")
+		return &http.Response{
+			StatusCode: 200,
+			Body:       ioutil.NopCloser(bytes.NewBufferString("[]")),
+			Header:     make(http.Header),
+		}
+	})
+
+	c := New(WithClient(client))
+	err := c.DeletePipeline(Pipeline{Application: "test-App", Name: "appName"}, "")
+	assert.Nil(t, err)
+}
+
+func TestDeletePipelinesWithGate(t *testing.T) {
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		assert.Equal(t, req.URL.String(), "http://localhost:8084/plank/pipelines/test-App/appName")
+		assert.Equal(t, req.Method, "DELETE")
+		return &http.Response{
+			StatusCode: 200,
+			Body:       ioutil.NopCloser(bytes.NewBufferString("[]")),
+			Header:     make(http.Header),
+		}
+	})
+
+	c := New(WithClient(client))
+	c.UseGateEndpoints()
+	err := c.DeletePipeline(Pipeline{Application: "test-App", Name: "appName"}, "")
+	assert.Nil(t, err)
+}
+
 func TestPipeline_ValidateRefIds(t *testing.T) {
 	tests := map[string]struct {
 		stage           string
