@@ -124,6 +124,39 @@ func TestUpsertPipelinesNoId(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestDeletePipelines(t *testing.T) {
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		assert.Equal(t, req.URL.String(), "http://localhost:8080/pipelines/test-App/appName")
+		assert.Equal(t, req.Method, "DELETE")
+		return &http.Response{
+			StatusCode: 200,
+			Body:       ioutil.NopCloser(bytes.NewBufferString("[]")),
+			Header:     make(http.Header),
+		}
+	})
+
+	c := New(WithClient(client))
+	err := c.DeletePipeline(Pipeline{Application: "test-App", Name: "appName"}, "")
+	assert.Nil(t, err)
+}
+
+func TestDeletePipelinesWithGate(t *testing.T) {
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		assert.Equal(t, req.URL.String(), "http://localhost:8084/plank/pipelines/test-App/appName")
+		assert.Equal(t, req.Method, "DELETE")
+		return &http.Response{
+			StatusCode: 200,
+			Body:       ioutil.NopCloser(bytes.NewBufferString("[]")),
+			Header:     make(http.Header),
+		}
+	})
+
+	c := New(WithClient(client))
+	c.UseGateEndpoints()
+	err := c.DeletePipeline(Pipeline{Application: "test-App", Name: "appName"}, "")
+	assert.Nil(t, err)
+}
+
 func TestPipeline_ValidateRefIds(t *testing.T) {
 	tests := map[string]struct {
 		stage           string
