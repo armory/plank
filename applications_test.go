@@ -42,6 +42,25 @@ func TestGetApplication(t *testing.T) {
 	assert.Equal(t, app.Email, "foo@bar.com")
 }
 
+func TestGetApplicationWithGate(t *testing.T) {
+	payload := `{"name":"testapp","email":"foo@bar.com"}`
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		assert.Equal(t, req.URL.String(), "http://localhost:8084/plank/v2/applications/foo")
+		return &http.Response{
+			StatusCode: 200,
+			Body:       ioutil.NopCloser(bytes.NewBufferString(payload)),
+			Header:     make(http.Header),
+		}
+	})
+
+	c := New(WithClient(client))
+	c.UseGateEndpoints()
+	app, err := c.GetApplication("foo", "")
+	assert.Nil(t, err)
+	assert.Equal(t, app.Name, "testapp")
+	assert.Equal(t, app.Email, "foo@bar.com")
+}
+
 func TestCreateApp(t *testing.T) {
 	postPayload := `{"ref":"/refstring"}`
 	pollTaskPayload := `{"id":"foo","status":"sure","endTime":42}`

@@ -41,6 +41,23 @@ func TestGetPipelines(t *testing.T) {
 	assert.Equal(t, len(val), 0) // Should get 0 pipelines back.
 }
 
+func TestGetPipelinesWithGate(t *testing.T) {
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		assert.Equal(t, req.URL.String(), "http://localhost:8084/plank/pipelines/myapp")
+		return &http.Response{
+			StatusCode: 200,
+			Body:       ioutil.NopCloser(bytes.NewBufferString("[]")),
+			Header:     make(http.Header),
+		}
+	})
+
+	c := New(WithClient(client))
+	c.UseGateEndpoints()
+	val, err := c.GetPipelines("myapp", "")
+	assert.Nil(t, err)
+	assert.Equal(t, len(val), 0) // Should get 0 pipelines back.
+}
+
 func TestPipeline_ValidateRefIds(t *testing.T) {
 	tests := map[string]struct {
 		stage           string
