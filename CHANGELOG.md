@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [4.1.0]
+
+### Added
+
+- Add ability for plank Applications to define repository details
+
+### Fixed
+
+### Removed
+
 ## [4.0.0]
 
 ### Added
@@ -205,6 +215,8 @@ paylods from 4xx and 5xx responses in the `plank.FailedResponse` struct.
   struct makes sense for the context.
 
 [Unreleased]: https://github.com/armory/plank/compare/v1.3.0...HEAD
+[4.1.0]: https://github.com/armory/plank/compare/v4.0.0...v4.1.0
+[4.0.0]: https://github.com/armory/plank/compare/v3.4.5...v4.0.0
 [3.4.5]: https://github.com/armory/plank/compare/v3.4.4...v3.4.5
 [3.4.4]: https://github.com/armory/plank/compare/v3.4.3...v3.4.4
 [3.4.3]: https://github.com/armory/plank/compare/v3.4.2...v3.4.3
