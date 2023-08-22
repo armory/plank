@@ -58,43 +58,9 @@ func TestGetPipelinesWithGate(t *testing.T) {
 	assert.Equal(t, len(val), 0) // Should get 0 pipelines back.
 }
 
-func TestUpsertPipelinesNoIdWithGate(t *testing.T) {
-	client := NewTestClient(func(req *http.Request) *http.Response {
-		assert.Equal(t, req.URL.String(), "http://localhost:8084/plank/pipelines")
-		assert.Equal(t, req.Method, "POST")
-		return &http.Response{
-			StatusCode: 200,
-			Body:       ioutil.NopCloser(bytes.NewBufferString("[]")),
-			Header:     make(http.Header),
-		}
-	})
-
-	c := New(WithClient(client))
-	c.UseGateEndpoints()
-	err := c.UpsertPipeline(Pipeline{},"", "")
-	assert.Nil(t, err)
-}
-
-func TestUpsertPipelinesWithGate(t *testing.T) {
-	client := NewTestClient(func(req *http.Request) *http.Response {
-		assert.Equal(t, req.URL.String(), "http://localhost:8084/plank/pipelines/Test")
-		assert.Equal(t, req.Method, "PUT")
-		return &http.Response{
-			StatusCode: 200,
-			Body:       ioutil.NopCloser(bytes.NewBufferString("[]")),
-			Header:     make(http.Header),
-		}
-	})
-
-	c := New(WithClient(client))
-	c.UseGateEndpoints()
-	err := c.UpsertPipeline(Pipeline{},"Test", "")
-	assert.Nil(t, err)
-}
-
 func TestUpsertPipelines(t *testing.T) {
 	client := NewTestClient(func(req *http.Request) *http.Response {
-		assert.Equal(t, req.URL.String(), "http://localhost:8080/pipelines/Test")
+		assert.Equal(t, req.URL.String(), "http://localhost:8084/pipelines/Test")
 		assert.Equal(t, req.Method, "PUT")
 		return &http.Response{
 			StatusCode: 200,
@@ -104,13 +70,13 @@ func TestUpsertPipelines(t *testing.T) {
 	})
 
 	c := New(WithClient(client))
-	err := c.UpsertPipeline(Pipeline{},"Test", "")
+	err := c.UpsertPipeline(Pipeline{}, "Test", "")
 	assert.Nil(t, err)
 }
 
 func TestUpsertPipelinesNoId(t *testing.T) {
 	client := NewTestClient(func(req *http.Request) *http.Response {
-		assert.Equal(t, req.URL.String(), "http://localhost:8080/pipelines")
+		assert.Equal(t, req.URL.String(), "http://localhost:8084/pipelines")
 		assert.Equal(t, req.Method, "POST")
 		return &http.Response{
 			StatusCode: 200,
@@ -120,7 +86,7 @@ func TestUpsertPipelinesNoId(t *testing.T) {
 	})
 
 	c := New(WithClient(client))
-	err := c.UpsertPipeline(Pipeline{},"", "")
+	err := c.UpsertPipeline(Pipeline{}, "", "")
 	assert.Nil(t, err)
 }
 
@@ -163,7 +129,7 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 		expectedError   []string
 		expectedWarning []string
 	}{
-		"refIds_happy_path" : {
+		"refIds_happy_path": {
 			`{
 						"stages": [
 							{
@@ -200,10 +166,10 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 							}
 						]
 					}`,
-					[]string{},
+			[]string{},
 			[]string{},
 		},
-		"refIds_mandatory" : {
+		"refIds_mandatory": {
 			`{
 						"stages": [
 							{
@@ -215,10 +181,10 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 							}
 						]
 					}`,
-					[]string{},
+			[]string{},
 			[]string{"RefId field not found in stage"},
 		},
-		"refIds_and_stageref_do_not_exists" : {
+		"refIds_and_stageref_do_not_exists": {
 			`{
 						"stages": [
 							{
@@ -236,7 +202,7 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 			[]string{"Referenced stage mj1 cannot be found."},
 			[]string{"RefId field not found in stage"},
 		},
-		"refIds_duplicated" : {
+		"refIds_duplicated": {
 			`{
 						"stages": [
 							{
@@ -257,10 +223,10 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 							}
 						]
 					}`,
-					[]string{"Duplicate stage refId mj2 field found"},
+			[]string{"Duplicate stage refId mj2 field found"},
 			[]string{},
 		},
-		"requisiteStageRefIds_does_not_exists" : {
+		"requisiteStageRefIds_does_not_exists": {
 			`{
 						"stages": [
 							{
@@ -276,10 +242,10 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 							}
 						]
 					}`,
-					[]string{"Referenced stage mj1 cannot be found."},
+			[]string{"Referenced stage mj1 cannot be found."},
 			[]string{},
 		},
-		"requisiteStageRefIds_with_same_refId" : {
+		"requisiteStageRefIds_with_same_refId": {
 			`{
 						"stages": [
 							{
@@ -295,10 +261,10 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 							}
 						]
 					}`,
-					[]string{"mj2 refers to itself. Circular references are not supported"},
+			[]string{"mj2 refers to itself. Circular references are not supported"},
 			[]string{},
 		},
-		"warning_no_stages" : {
+		"warning_no_stages": {
 			`{
 						"stages": [
 						]
@@ -321,12 +287,12 @@ func TestPipeline_ValidateRefIds(t *testing.T) {
 			result := pipe.ValidateRefIds()
 			expectedValidation := ValidationResult{Errors: nil, Warnings: nil}
 			for _, errorMessage := range c.expectedError {
-				if errorMessage != ""{
+				if errorMessage != "" {
 					expectedValidation.Errors = append(expectedValidation.Errors, errors.New(errorMessage))
 				}
 			}
 			for _, warningMessage := range c.expectedWarning {
-				if warningMessage != ""{
+				if warningMessage != "" {
 					expectedValidation.Warnings = append(expectedValidation.Warnings, warningMessage)
 				}
 			}

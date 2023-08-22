@@ -127,6 +127,10 @@ func (c *Client) gatePipelinesURL() string {
 	return c.URLs["gate"] + "/plank/pipelines"
 }
 
+func (c *Client) getUpsertPipelineUrl() string {
+	return c.URLs["gate"] + "/pipelines"
+}
+
 // Get returns an array of all the Spinnaker pipelines
 // configured for app
 func (c *Client) GetPipelines(app, traceparent string) ([]Pipeline, error) {
@@ -147,24 +151,12 @@ func (c *Client) GetPipelines(app, traceparent string) ([]Pipeline, error) {
 func (c *Client) UpsertPipeline(p Pipeline, id, traceparent string) error {
 	var unused interface{}
 	if id == "" {
-		if c.UseGate {
-			if err := c.PostWithRetry(c.gatePipelinesURL(), traceparent, ApplicationJson, p, &unused); err != nil {
-				return fmt.Errorf("could not create pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
-			}
-		} else {
-			if err := c.PostWithRetry(c.pipelinesURL(), traceparent, ApplicationJson, p, &unused); err != nil {
-				return fmt.Errorf("could not create pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
-			}
+		if err := c.PostWithRetry(c.getUpsertPipelineUrl(), traceparent, ApplicationJson, p, &unused); err != nil {
+			return fmt.Errorf("could not create pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
 		}
 	} else {
-		if c.UseGate {
-			if err := c.PutWithRetry(fmt.Sprintf("%s/%s", c.gatePipelinesURL(), id), traceparent, ApplicationJson, p, &unused); err != nil {
-				return fmt.Errorf("could not update pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
-			}
-		} else {
-			if err := c.PutWithRetry(fmt.Sprintf("%s/%s", c.pipelinesURL(), id), traceparent, ApplicationJson, p, &unused); err != nil {
-				return fmt.Errorf("could not update pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
-			}
+		if err := c.PutWithRetry(fmt.Sprintf("%s/%s", c.getUpsertPipelineUrl(), id), traceparent, ApplicationJson, p, &unused); err != nil {
+			return fmt.Errorf("could not update pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
 		}
 	}
 	return nil
