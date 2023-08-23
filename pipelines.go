@@ -16,8 +16,12 @@
 package plank
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
 )
 
 // Pipeline is the structure that comes back from Spinnaker
@@ -149,16 +153,31 @@ func (c *Client) GetPipelines(app, traceparent string) ([]Pipeline, error) {
 
 // UpsertPipeline creates/updates a pipeline defined in the struct argument.
 func (c *Client) UpsertPipeline(p Pipeline, id, traceparent string) error {
-	var unused interface{}
-	if id == "" {
-		if err := c.PostWithRetry(c.getUpsertPipelineUrl(), traceparent, ApplicationJson, p, &unused); err != nil {
-			return fmt.Errorf("could not create pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
-		}
-	} else {
-		if err := c.PutWithRetry(fmt.Sprintf("%s/%s", c.getUpsertPipelineUrl(), id), traceparent, ApplicationJson, p, &unused); err != nil {
-			return fmt.Errorf("could not update pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
-		}
+	var resultMap map[string]interface{}
+	operation := getOperation(p, id)
+	if err := c.PostWithRetry(c.URLs["orca"]+"/ops", traceparent, ApplicationJson, operation, &resultMap); err != nil {
+		return fmt.Errorf("could not save pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
 	}
+
+	result, _ := c.waitForTaskToFinish(resultMap, traceparent)
+
+	status := result["status"].(string)
+	if status != "SUCCEEDED" {
+		exception := ""
+		variables, _ := result["variables"].(map[string]interface{})
+		if value, found := variables["exception"]; found {
+			if details, ok := value.(map[string]interface{}); ok {
+				if errors, ok := details["errors"].([]interface{}); ok && len(errors) > 0 {
+					if errorMsg, ok := errors[0].(string); ok {
+						exception = errorMsg
+					}
+				}
+			}
+		}
+
+		return fmt.Errorf("could not save pipeline '%s' in app '%s': %s", p.Name, p.Application, exception)
+	}
+
 	return nil
 }
 
@@ -206,4 +225,63 @@ func (c *Client) Execute(application, pipeline, traceparent string) (*PipelineRe
 		return nil, err
 	}
 	return &ref, nil
+}
+
+func pipelineToJson(pipeline Pipeline) string {
+	pipelineBytes, _ := json.Marshal(pipeline)
+	return string(pipelineBytes)
+}
+
+func getOperation(p Pipeline, id string) map[string]interface{} {
+	if id == "" {
+		return map[string]interface{}{
+			"description": fmt.Sprintf("Save pipeline '%v'", p.Name),
+			"application": p.Application,
+			"job": []map[string]interface{}{
+				{
+					"type":       "savePipeline",
+					"pipeline":   base64.StdEncoding.EncodeToString([]byte(pipelineToJson(p))),
+					"user":       "anonymous", // Change this to your actual user logic
+					"staleCheck": false,
+				},
+			},
+		}
+	} else {
+		return map[string]interface{}{
+			"description": fmt.Sprintf("Update pipeline '%v'", p.Name),
+			"application": p.Application,
+			"job": []map[string]interface{}{
+				{
+					"type":     "updatePipeline",
+					"pipeline": base64.StdEncoding.EncodeToString([]byte(pipelineToJson(p))),
+					"user":     "anonymous", // Change this to your actual user logic
+				},
+			},
+		}
+	}
+}
+
+func (c *Client) waitForTaskToFinish(r map[string]interface{}, traceparent string) (map[string]interface{}, error) {
+	if r["ref"] == nil {
+		return nil, fmt.Errorf("No ref field found in task result, returning entire result: %s", r)
+	}
+
+	ref := r["ref"].(string)
+	taskID := strings.Split(ref, "/")[2]
+	fmt.Println("Create succeeded; polling task for completion:", taskID)
+
+	task := make(map[string]interface{})
+	task["id"] = taskID
+	for i := 0; i < 32; i++ {
+		time.Sleep(time.Duration(1000) * time.Millisecond)
+		if err := c.PostWithRetry(c.URLs["orca"]+"/tasks/"+taskID, traceparent, ApplicationJson, "", &task); err != nil {
+			return nil, fmt.Errorf("could not retrieve task %s with error %w", taskID, err)
+		}
+		status, statusFound := task["status"]
+		if statusFound && (status == "SUCCEEDED" || status == "TERMINAL") {
+			break
+		}
+	}
+
+	return task, nil
 }

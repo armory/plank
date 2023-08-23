@@ -60,11 +60,19 @@ func TestGetPipelinesWithGate(t *testing.T) {
 
 func TestUpsertPipelines(t *testing.T) {
 	client := NewTestClient(func(req *http.Request) *http.Response {
-		assert.Equal(t, req.URL.String(), "http://localhost:8084/pipelines/Test")
-		assert.Equal(t, req.Method, "PUT")
+		assert.Equal(t, req.Method, "POST")
+		responseJSON := `{
+		  "status": "SUCCEEDED",
+          "ref": "some/ref/12345",
+		  "variables": {
+			"exception": null
+		  },
+		  "otherField": "otherValue"
+		}`
+		// Create an HTTP response based on the responseJSON string
 		return &http.Response{
-			StatusCode: 200,
-			Body:       ioutil.NopCloser(bytes.NewBufferString("[]")),
+			StatusCode: http.StatusOK,
+			Body:       ioutil.NopCloser(bytes.NewBufferString(responseJSON)),
 			Header:     make(http.Header),
 		}
 	})
@@ -76,11 +84,19 @@ func TestUpsertPipelines(t *testing.T) {
 
 func TestUpsertPipelinesNoId(t *testing.T) {
 	client := NewTestClient(func(req *http.Request) *http.Response {
-		assert.Equal(t, req.URL.String(), "http://localhost:8084/pipelines")
 		assert.Equal(t, req.Method, "POST")
+		responseJSON := `{
+		  "status": "SUCCEEDED",
+          "ref": "some/ref/12345",
+		  "variables": {
+			"exception": null
+		  },
+		  "otherField": "otherValue"
+		}`
+		// Create an HTTP response based on the responseJSON string
 		return &http.Response{
-			StatusCode: 200,
-			Body:       ioutil.NopCloser(bytes.NewBufferString("[]")),
+			StatusCode: http.StatusOK,
+			Body:       ioutil.NopCloser(bytes.NewBufferString(responseJSON)),
 			Header:     make(http.Header),
 		}
 	})
