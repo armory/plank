@@ -155,11 +155,15 @@ func (c *Client) GetPipelines(app, traceparent string) ([]Pipeline, error) {
 func (c *Client) UpsertPipeline(p Pipeline, id, traceparent string) error {
 	var resultMap map[string]interface{}
 	operation := getOperation(p, id)
-	if err := c.PostWithRetry(c.URLs["orca"]+"/ops", traceparent, ApplicationJson, operation, &resultMap); err != nil {
+	if err := c.PostWithRetry(c.URLs["orca"]+"/ops", traceparent, ApplicationContextJson, operation, &resultMap); err != nil {
 		return fmt.Errorf("could not save pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
 	}
 
-	result, _ := c.waitForTaskToFinish(resultMap, traceparent)
+	result, err := c.waitForTaskToFinish(resultMap, traceparent)
+
+	if err != nil {
+		return err
+	}
 
 	status := result["status"].(string)
 	if status != "SUCCEEDED" {
@@ -242,7 +246,7 @@ func getOperation(p Pipeline, id string) map[string]interface{} {
 					"type":       "savePipeline",
 					"pipeline":   base64.StdEncoding.EncodeToString([]byte(pipelineToJson(p))),
 					"user":       "anonymous", // Change this to your actual user logic
-					"staleCheck": false,
+					"staleCheck": true,
 				},
 			},
 		}
@@ -274,7 +278,7 @@ func (c *Client) waitForTaskToFinish(r map[string]interface{}, traceparent strin
 	task["id"] = taskID
 	for i := 0; i < 32; i++ {
 		time.Sleep(time.Duration(1000) * time.Millisecond)
-		if err := c.PostWithRetry(c.URLs["orca"]+"/tasks/"+taskID, traceparent, ApplicationJson, "", &task); err != nil {
+		if err := c.GetWithRetry(c.URLs["orca"]+"/tasks/"+taskID, traceparent, &task); err != nil {
 			return nil, fmt.Errorf("could not retrieve task %s with error %w", taskID, err)
 		}
 		status, statusFound := task["status"]
