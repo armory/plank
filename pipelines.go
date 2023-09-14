@@ -152,7 +152,34 @@ func (c *Client) GetPipelines(app, traceparent string) ([]Pipeline, error) {
 }
 
 // UpsertPipeline creates/updates a pipeline defined in the struct argument.
+
 func (c *Client) UpsertPipeline(p Pipeline, id, traceparent string) error {
+	var unused interface{}
+	if id == "" {
+		if c.UseGate {
+			if err := c.PostWithRetry(c.gatePipelinesURL(), traceparent, ApplicationJson, p, &unused); err != nil {
+				return fmt.Errorf("could not create pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
+			}
+		} else {
+			if err := c.PostWithRetry(c.pipelinesURL(), traceparent, ApplicationJson, p, &unused); err != nil {
+				return fmt.Errorf("could not create pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
+			}
+		}
+	} else {
+		if c.UseGate {
+			if err := c.PutWithRetry(fmt.Sprintf("%s/%s", c.gatePipelinesURL(), id), traceparent, ApplicationJson, p, &unused); err != nil {
+				return fmt.Errorf("could not update pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
+			}
+		} else {
+			if err := c.PutWithRetry(fmt.Sprintf("%s/%s", c.pipelinesURL(), id), traceparent, ApplicationJson, p, &unused); err != nil {
+				return fmt.Errorf("could not update pipeline '%s' in app '%s': %w", p.Name, p.Application, err)
+			}
+		}
+	}
+	return nil
+}
+
+func (c *Client) UpsertPipelineUsingOrca(p Pipeline, id, traceparent string) error {
 	var resultMap map[string]interface{}
 	operation := getOperation(p, id)
 	if err := c.PostWithRetry(c.URLs["orca"]+"/ops", traceparent, ApplicationContextJson, operation, &resultMap); err != nil {
