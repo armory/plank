@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Using gate when upserting pipeline
+- Adding back old upsertPipeline implementation.
+- To be used in ff logic in dinghy.
+
+### Fixed
+
+### Removed
+
+## [4.1.1]
+
+### Added
+- Using orca when upserting pipeline
 
 ### Fixed
 
