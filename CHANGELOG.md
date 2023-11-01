@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.1.3]
+
+### Added
+
+### Fixed
+- when using Or Mode, when no permissions were set access was denied
+
+### Removed
+
+## [4.1.2]
+
 ### Added
 - Adding back old upsertPipeline implementation.
 - To be used in ff logic in dinghy.
