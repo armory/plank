@@ -101,22 +101,22 @@ func (c *Client) ResyncFiat(traceparent string) error {
 
 	var unused interface{}
 	if c.UseGate {
-		return c.Post(c.URLs["gate"]+"/plank/forceRefresh/all",traceparent, ApplicationJson, nil, &unused)
+		return c.Post(c.URLs["gate"]+"/plank/forceRefresh/all", traceparent, ApplicationJson, nil, &unused)
 	} else {
-		return c.Post(c.URLs["fiat"]+"/forceRefresh/all",traceparent, ApplicationJson, nil, &unused)
+		return c.Post(c.URLs["fiat"]+"/forceRefresh/all", traceparent, ApplicationJson, nil, &unused)
 	}
 
 }
 
 type FiatRole struct {
-	Name string `json:"name"`
+	Name   string `json:"name"`
 	Source string `json:"source"`
 }
 
 func (c *Client) UserRoles(username, traceparent string) ([]string, error) {
 	baseUrl := c.URLs["fiat"]
 	var roles []FiatRole
-	if err := c.Get(baseUrl + "/authorize/" + username + "/roles", traceparent, &roles); err != nil {
+	if err := c.Get(baseUrl+"/authorize/"+username+"/roles", traceparent, &roles); err != nil {
 		return nil, err
 	}
 	var names []string
@@ -143,7 +143,7 @@ type FiatClient interface {
 type FiatClientFactory func(opts ...ClientOption) FiatClient
 
 type FiatPermissionEvaluator struct {
-	clientOps []ClientOption
+	clientOps     []ClientOption
 	clientFactory FiatClientFactory
 	userRoleCache sync.Map
 	// orMode is used as a flag for whether permissable objects need all roles or just one
@@ -155,6 +155,11 @@ type FiatPermissionEvaluator struct {
 func (f *FiatPermissionEvaluator) HasReadPermission(user, traceparent string, rp ReadPermissable) (bool, error) {
 	if isNil(rp) {
 		return false, fmt.Errorf("object for permissions check should not be nil")
+	}
+	// if no permissions are set, assume "yes" for access.  IDEALLY should default to "fail" but... this matches
+	// standard spinnaker behavior at this time
+	if len(rp.GetPermissions()) == 0 {
+		return true, nil
 	}
 
 	uroles, err := f.userRoles(user, traceparent)
@@ -226,7 +231,7 @@ func NewFiatPermissionEvaluator(opts ...PermissionEvaluatorOpt) *FiatPermissionE
 	}
 	fpe := &FiatPermissionEvaluator{
 		clientFactory: defaultClientFactory,
-		orMode: false,
+		orMode:        false,
 	}
 
 	for _, opt := range opts {

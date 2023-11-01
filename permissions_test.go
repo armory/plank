@@ -58,7 +58,7 @@ func TestHasAppWriteAccess(t *testing.T) {
 	assert.False(t, u.HasAppWriteAccess("nonexistent"))
 }
 
-func generateTestClient(t *testing.T, resp interface{}, respCode int, targetEndpoint string) *Client{
+func generateTestClient(t *testing.T, resp interface{}, respCode int, targetEndpoint string) *Client {
 	tc := NewTestClient(func(r *http.Request) *http.Response {
 		assert.Equal(t, r.URL.String(), targetEndpoint)
 		//TODO(ethanfrogers): assert that the X-Spinnaker-User header matches the incoming user
@@ -68,25 +68,25 @@ func generateTestClient(t *testing.T, resp interface{}, respCode int, targetEndp
 		}
 		return &http.Response{
 			StatusCode: respCode,
-			Body: ioutil.NopCloser(bytes.NewReader(b)),
-			Header: make(http.Header),
+			Body:       ioutil.NopCloser(bytes.NewReader(b)),
+			Header:     make(http.Header),
 		}
 	})
 	return New(WithClient(tc))
 }
 
 func TestClient_UserRoles(t *testing.T) {
-	cases := map[string]struct{
-		c *Client
+	cases := map[string]struct {
+		c              *Client
 		expectedOutput []string
-		expectedErr error
-		username string
+		expectedErr    error
+		username       string
 	}{
 		"happy path": {
-			username: "armory",
-			c: generateTestClient(t, []FiatRole{{Name: "team-a"}, {Name: "team-b"}}, http.StatusOK, "http://localhost:7003/authorize/armory/roles"),
+			username:       "armory",
+			c:              generateTestClient(t, []FiatRole{{Name: "team-a"}, {Name: "team-b"}}, http.StatusOK, "http://localhost:7003/authorize/armory/roles"),
 			expectedOutput: []string{"team-a", "team-b"},
-			expectedErr: nil,
+			expectedErr:    nil,
 		},
 	}
 
@@ -101,7 +101,7 @@ func TestClient_UserRoles(t *testing.T) {
 
 type mockFiatClient struct {
 	rolesReturn []string
-	errReturn error
+	errReturn   error
 }
 
 func (m mockFiatClient) UserRoles(username, traceparent string) ([]string, error) {
@@ -118,11 +118,11 @@ func (m mockPermissable) GetPermissions() []string {
 }
 
 func TestFiatPermissionEvaluator_HasReadPermission(t *testing.T) {
-	cases := map[string]struct{
-		mockClient mockFiatClient
-		permissable ReadPermissable
+	cases := map[string]struct {
+		mockClient     mockFiatClient
+		permissable    ReadPermissable
 		expectedResult bool
-		orMode bool
+		orMode         bool
 	}{
 		"contains all permissions": {
 			expectedResult: true,
@@ -131,7 +131,7 @@ func TestFiatPermissionEvaluator_HasReadPermission(t *testing.T) {
 				errReturn:   nil,
 			},
 			permissable: mockPermissable{
-				permissions:     []string{"team-a", "team-b"},
+				permissions: []string{"team-a", "team-b"},
 			},
 		},
 		"user is missing roles": {
@@ -141,7 +141,7 @@ func TestFiatPermissionEvaluator_HasReadPermission(t *testing.T) {
 				errReturn:   nil,
 			},
 			permissable: mockPermissable{
-				permissions:     []string{"team-a", "team-b"},
+				permissions: []string{"team-a", "team-b"},
 			},
 		},
 		"user has different roles": {
@@ -151,7 +151,7 @@ func TestFiatPermissionEvaluator_HasReadPermission(t *testing.T) {
 				errReturn:   nil,
 			},
 			permissable: mockPermissable{
-				permissions:     []string{"team-a", "team-b"},
+				permissions: []string{"team-a", "team-b"},
 			},
 		},
 		"permissions has different roles": {
@@ -161,29 +161,51 @@ func TestFiatPermissionEvaluator_HasReadPermission(t *testing.T) {
 				errReturn:   nil,
 			},
 			permissable: mockPermissable{
-				permissions:     []string{"team-c", "team-d"},
+				permissions: []string{"team-c", "team-d"},
 			},
 		},
 		"or mode - contains at least 1 role in common": {
 			expectedResult: true,
-			orMode: true,
+			orMode:         true,
 			mockClient: mockFiatClient{
 				rolesReturn: []string{"team-b", "team-a"},
 				errReturn:   nil,
 			},
 			permissable: mockPermissable{
-				permissions:     []string{"team-c", "team-d", "team-b"},
+				permissions: []string{"team-c", "team-d", "team-b"},
 			},
 		},
 		"or mode - no overlapping permissions": {
 			expectedResult: false,
-			orMode: true,
+			orMode:         true,
 			mockClient: mockFiatClient{
 				rolesReturn: []string{"team-b", "team-a"},
 				errReturn:   nil,
 			},
 			permissable: mockPermissable{
-				permissions:     []string{"team-c", "team-d", "team-e"},
+				permissions: []string{"team-c", "team-d", "team-e"},
+			},
+		},
+		"or mode - no permissions set should be readable": {
+			expectedResult: true,
+			orMode:         true,
+			mockClient: mockFiatClient{
+				rolesReturn: []string{"team-b", "team-a"},
+				errReturn:   nil,
+			},
+			permissable: mockPermissable{
+				permissions: []string{},
+			},
+		},
+		"not or mode - no permissions set should be readable": {
+			expectedResult: true,
+			orMode:         false,
+			mockClient: mockFiatClient{
+				rolesReturn: []string{"team-b", "team-a"},
+				errReturn:   nil,
+			},
+			permissable: mockPermissable{
+				permissions: []string{},
 			},
 		},
 	}
@@ -198,6 +220,5 @@ func TestFiatPermissionEvaluator_HasReadPermission(t *testing.T) {
 			assert.Equal(t, c.expectedResult, res)
 		})
 	}
-
 
 }
