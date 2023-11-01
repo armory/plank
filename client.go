@@ -319,3 +319,5 @@ func (c *Client) UseGateEndpoints() {
 func (c *Client) UseServiceEndpoints() {
 	c.UseGate = false
 }
+
+//Yes a blank sorta line has to be here.  Bug in golang
