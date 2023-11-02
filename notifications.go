@@ -21,10 +21,10 @@ import (
 
 func (notifications *NotificationsType) FillAppNotificationFields(appName string) {
 	notificationsMap := *notifications
-	for notApp, sliceOfNotifications := range notificationsMap{
+	for notApp, sliceOfNotifications := range notificationsMap {
 		if sliceInterface, ok := sliceOfNotifications.([]interface{}); ok {
 			for _, currentNotification := range sliceInterface {
-				if notificationValues, itsMap := currentNotification.(map[string]interface{}); itsMap{
+				if notificationValues, itsMap := currentNotification.(map[string]interface{}); itsMap {
 					notificationValues["level"] = "application"
 					notificationValues["type"] = notApp
 				}
@@ -36,7 +36,7 @@ func (notifications *NotificationsType) FillAppNotificationFields(appName string
 
 func (notifications *NotificationsType) ValidateAppNotification() error {
 	notificationsMap := *notifications
-	for key, sliceOfNotifications := range notificationsMap{
+	for key, sliceOfNotifications := range notificationsMap {
 		if key != "application" {
 			if _, ok := sliceOfNotifications.([]interface{}); !ok {
 				return fmt.Errorf("application notifications format is invalid for %v", key)
@@ -72,13 +72,15 @@ func (c *Client) UpdateApplicationNotifications(notifications NotificationsType,
 	notifications.FillAppNotificationFields(appName)
 	var unused interface{}
 	if c.UseGate {
-		if err := c.Post(fmt.Sprintf("%s/plank/notifications/application/%s", c.URLs["gate"], appName),traceparent, ApplicationJson, notifications , &unused); err != nil {
+		if err := c.Post(fmt.Sprintf("%s/plank/notifications/application/%s", c.URLs["gate"], appName), traceparent, ApplicationJson, notifications, &unused); err != nil {
 			return fmt.Errorf("could not update notifications %q: %w", notifications, err)
 		}
 	} else {
-		if err := c.Post(fmt.Sprintf("%s/notifications/application/%s", c.URLs["front50"], appName),traceparent, ApplicationJson, notifications , &unused); err != nil {
+		if err := c.Post(fmt.Sprintf("%s/notifications/application/%s", c.URLs["front50"], appName), traceparent, ApplicationJson, notifications, &unused); err != nil {
 			return fmt.Errorf("could not update notifications %q: %w", notifications, err)
 		}
 	}
 	return nil
 }
+
+//Yes a blank sorta line has to be here.  Bug in golang
