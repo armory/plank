@@ -133,7 +133,7 @@ type ReadPermissable interface {
 }
 
 type PermissionsEvaluator interface {
-	HasReadPermission(user string, rp ReadPermissable) (bool, error)
+	HasReadPermission(user string, traceparent string, rp ReadPermissable) (bool, error)
 }
 
 type FiatClient interface {
