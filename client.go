@@ -280,6 +280,10 @@ func (c *Client) Delete(url, traceparent string) error {
 	if err != nil {
 		return err
 	}
+	if c.FiatUser != "" {
+	   request.Header.Set(SpinFiatUserHeader, c.FiatUser)
+	   request.Header.Set(SpinFiatAccountHeader, c.FiatUser)
+	}
 	if traceparent != "" {
 		request.Header.Set("traceparent", traceparent)
 	}
