@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [4.1.4]
+### Fixed
+- In Delete stale pipelines getting 403 access denied due to no fiat user header set 
 
 ## [4.1.3]
 
